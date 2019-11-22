@@ -8,10 +8,13 @@ library(httr)
 library(jsonlite)
 library(data.table)
 library(stringr)
+library(lubridate)
+library(readr)
 
 ## Load data
+setwd('./data')
 load("2019-11-20_nhl-scraped-data.RData")
-
+load("2019-11-21_nhl-cleaned-data.RData")
 
 ## Example url for an api call
 base <- "https://statsapi.web.nhl.com/api/v1/"
@@ -332,9 +335,102 @@ player_season_data # Data.table with info on all seasons for each player in the 
 
 
 ### Cleaning up tables
+vF_play_types <- play_types[,.(play.id=id,play.name=name)] # Don't really need the other columns
+ids_we_care_about <- c('FACEOFF','HIT','GIVEAWAY','GOAL','SHOT','MISSED_SHOT','PENALTY','FIGHT','TAKEAWAY','BLOCKED_SHOT')
+vF_play_types[,important := 0]
+vF_play_types[play.id %in% ids_we_care_about ,important := 1]
+
+date_cols <- str_subset(names(seasons_DT),"Date")
+seasons_DT[, (date_cols) := lapply(.SD,as.Date),.SDcols= date_cols]
+
+vF_team_rosters_2017 <- rbindlist(team_rosters,idcol = 'team.id')
+vF_team_rosters_2017[, c('jerseyNumber','person.id') := list(as.integer(jerseyNumber), str_conv(person.id,'UTF8'))]
+vF_team_rosters_2017 <- vF_team_rosters_2017[,.(team.id,person.id,person.fullName,jerseyNumber,position.code)]
 
 
+all_player_ids_2017 <- all_player_ids
+
+col_sel <- str_subset(names(player_season_data),'league.',negate=T)
+vF_player_season_data <- player_season_data[league.name == 'National Hockey League',..col_sel]
+
+col_sel <- c('player.id','firstName','lastName','primaryNumber','birthDate','nationality','height','weight','active','shootsCatches','rosterStatus','currentTeam.id','primaryPosition.code')
+vF_player_info <- type_convert(player_info[,..col_sel])
+
+vF_teams_DT <- teams_DT[,.(team.id=id
+                           ,team.abbrev=abbreviation
+                           ,short.name=teamName
+                           ,long.name=name
+                           ,firstYearOfPlay=as.integer(firstYearOfPlay)
+                           ,locationName,franchiseId
+                           ,division.name,conference.name
+                           ,venue.name,venue.city)]
+
+col_sel <- c('game.id','about.period','result.eventTypeId','result.secondaryType','result.penaltySeverity','result.strength.code','about.eventIdx','about.periodType','about.periodTime','about.dateTime','about.goals.away','about.goals.home','coordinates.x','coordinates.y','team.id.for','team.id.against','HoA','s.x','r.x','l.x')
+vF_game_plays_2017 <- merge(game_plays_2017,vF_play_types[,c(1,3)],by.x='result.eventTypeId',by.y='play.id')[important==1,..col_sel]
+vF_game_plays_2017 <- type_convert(vF_game_plays_2017,col_types = cols(about.periodTime=col_time("%M:%S")))
+
+vF_game_plays_players_2017 <- game_plays_players_2017[,.(game.id,eventIdx,playerType,player.id=str_conv(player.id,'UTF8'))]
+
+col_ex <- c('home.rinkSide','away.rinkSide')
+col_sel <- setdiff(names(game_periods_2017),col_ex)
+vF_game_periods_2017 <- type_convert(game_periods_2017[,..col_sel])
+
+vF_game_teams_stats_2017 <- type_convert(game_teams_stats_2017,col_types = cols(game.id=col_character()))
+
+vF_game_skater_stats_2017 <- game_skater_stats_2017
+col_sel <- str_subset(names(vF_game_skater_stats_2017),'OnIce')
+vF_game_skater_stats_2017[, (col_sel) := lapply(.SD, function(x){ifelse(str_length(x)==4,str_c('0',x),x)}), .SDcols=col_sel]
+
+vF_game_skater_stats_2017 <- type_convert(vF_game_skater_stats_2017, col_types = cols(
+  game.id = col_character(),
+  HoA = col_character(),
+  player.id = col_character(),
+  timeOnIce = col_time(format = "%M:%S"),
+  evenTimeOnIce = col_time(format = "%M:%S"),
+  powerPlayTimeOnIce = col_time(format = "%M:%S"),
+  shortHandedTimeOnIce = col_time(format = "%M:%S")
+))
+
+vF_game_goalie_stats_2017 <- type_convert(game_goalie_stats_2017, col_types = cols(
+  game.id = col_character(),
+  HoA = col_character(),
+  player.id = col_character(),
+  timeOnIce = col_character(),
+  decision = col_character()
+))
+
+col_sel <- c('game.id','season','type','home.win','away.win','settled.in','dateTime','name','away.teamID','away.goals','home.teamID','home.goals')
+vF_game_info_2017 <- type_convert(game_info_2017[,..col_sel])
+
+### No changes
+vF_game_types <- game_types
+vF_stat_types <- stat_types
+vF_seasons_DT <- seasons_DT
+vF_all_player_ids_2017 <- all_player_ids_2017
+vF_game_shootout_status_2017 <- game_shootout_status_2017
+vF_no_play_data_2017 <- no_play_data_2017
 
 ### Final output
+"Background info"
+vF_game_types # Data.table of game types
+vF_play_types # Data.table of play types
+vF_stat_types # Data.table of stat types that can be pulled from the api
+vF_seasons_DT # Data.table with each season that's been recorded (only the recent ones will have play level data)
 
-vF_
+"Matching the relational database from that person on Kaggle"
+vF_player_info # Information on every player (like age, nationality, etc.)
+vF_teams_DT # Data.table of teams
+vF_game_plays_2017 # Play level data
+vF_game_plays_players_2017 # Players involved in plays
+vF_game_periods_2017 # Summary of periods in each game
+vF_game_shootout_status_2017 # Whether there was a shootout or not
+vF_game_teams_stats_2017 # Overall team stats
+vF_game_skater_stats_2017 # Player stats for each team
+vF_game_goalie_stats_2017 # Goalie stats for each team
+vF_game_info_2017 # Some game information
+vF_no_play_data_2017 # Tells which games did not have play data available
+
+"Other info"
+vF_team_rosters # List of data.tables with players on each team in 20172018 season
+vF_all_player_ids # Vector of player ids extracted from the roster list
+vF_player_season_data # Data.table with info on all seasons for each player in the players vector (includes non NHL seasons too)
