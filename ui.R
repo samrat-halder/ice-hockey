@@ -1,4 +1,5 @@
 library(shinydashboard)
+source("chooser.R")
 
 header <- dashboardHeader(
   title = "Ice Hockey"
@@ -6,48 +7,29 @@ header <- dashboardHeader(
 
 sidebar <- dashboardSidebar(
   #Here goes more customizations
+  collapsed = TRUE,
   sidebarMenu(
-    menuItem(tabName = "Tab1", "Charts 1"),
-    menuItem(tabName = "Tab2", "Charts 2")
-    
   )
 )
 body <- dashboardBody(
-  #Here goes UI for each tab
-  tabItems(
-    tabItem(
-      tabName = "Tab1",
-      h2(
-        fluidRow(
-          box( plotOutput("wc1"), status = "primary", title = "title1", width = 4, solidHeader = TRUE),
-          box( plotOutput("wc2"), status = "primary", title = "Title2", width = 4, solidHeader = TRUE),
-          box( plotOutput("wc3"), status = "primary", title = "Title3", width = 4, solidHeader = TRUE)
-        )
-        ,
-        fluidRow(
-          box( plotOutput("Plot1"), status = "primary", title = "title4", width = 4, solidHeader = TRUE),
-          box( plotOutput("Plot2"), status = "primary", title = "Title5", width = 4, solidHeader = TRUE),
-          box( plotOutput("Plot3"), status = "primary", title = "Title6", width = 4, solidHeader = TRUE)
-        )
-      )
-    ),
-    tabItem(
-      tabName = "Tab2",
-      h2(
-        fluidRow(
-          box( plotOutput("wc4"), status = "primary", title = "title1", width = 4, solidHeader = TRUE),
-          box( plotOutput("wc5"), status = "primary", title = "Title2", width = 4, solidHeader = TRUE),
-          box( plotOutput("wc6"), status = "primary", title = "Title3", width = 4, solidHeader = TRUE)
-        )
-        ,
-        fluidRow(
-          box( plotOutput("Plot4"), status = "primary", title = "title4", width = 4, solidHeader = TRUE),
-          box( plotOutput("Plot5"), status = "primary", title = "Title5", width = 4, solidHeader = TRUE),
-          box( plotOutput("Plot6"), status = "primary", title = "Title6", width = 4, solidHeader = TRUE)
-        )
-      )
+  fluidRow(
+    box(solidHeader = T, collapsible = T, width = '80%',
+        title = "Inputs", status = "primary", background = "blue",
+      selectInput('homeTeam', 'Home Team', choices = c('Boston Bruins','New York Rangers'), selected = 'Boston Bruins', multiple = FALSE,
+                selectize = TRUE, width = NULL, size = NULL),
+      selectInput('awayTeam', 'Away Team', choices = c('Boston Bruins','New York Rangers'), selected = 'New York Rangers', multiple = FALSE,
+                  selectize = TRUE, width = NULL, size = NULL)
     )
-  )
+    
+  ),
+  fluidRow(
+    div(style="display: inline-block;vertical-align:top; width: 150px;",checkboxInput('shots', 'Shots', value = FALSE, width = NULL)),
+    div(style="display: inline-block;vertical-align:top; width: 150px;",checkboxInput('goals', 'Goals', value = FALSE, width = NULL)),
+    div(style="display: inline-block;vertical-align:top; width: 150px;",checkboxInput('hits', 'Hits', value = FALSE, width = NULL))
+  ),
+  fluidRow(
+    tags$img(src='full-rink-2.png', width = '100%'))
+  
 )
 
-ui <- dashboardPage(header, sidebar, body, skin = "red")
+ui <- dashboardPage(header, sidebar, body, skin = "blue")
