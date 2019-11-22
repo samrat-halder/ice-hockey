@@ -10,6 +10,8 @@ library(data.table)
 library(stringr)
 library(lubridate)
 library(readr)
+library(ggplot2)
+library(forcats)
 
 ## Load data
 setwd('./data')
@@ -434,3 +436,44 @@ vF_no_play_data_2017 # Tells which games did not have play data available
 vF_team_rosters # List of data.tables with players on each team in 20172018 season
 vF_all_player_ids # Vector of player ids extracted from the roster list
 vF_player_season_data # Data.table with info on all seasons for each player in the players vector (includes non NHL seasons too)
+
+## Some quick charts for hw5a
+ggplot(vF_no_play_data_2017[,.N,by=no.data]) +
+  geom_col(aes(x=no.data,y=N)) +
+  labs(x="No play level data?"
+       ,y="Count"
+       ,title="Less than 2% of games are missing play data (2017-18)")
+
+ggplot(vF_game_plays_2017[,.N,by=result.eventTypeId][order(N)]) +
+  geom_col(aes(x=fct_inorder(result.eventTypeId),y=N)) +
+  labs(x="Play type"
+       ,y="Count"
+       ,title="Overview of play types") +
+  coord_flip()
+
+ggplot(vF_game_plays_2017) +
+  geom_hex(aes(x=s.x,y=coordinates.y)) +
+  scale_x_continuous(limits = c(-100,100)) +
+  scale_y_continuous(limits = c(-50,50)) +
+  scale_fill_continuous(trans="reverse") +
+  labs(x="x coordinate"
+       ,y="y coordinate"
+       ,title="Regular season plays (2017-18)")
+
+ggplot(vF_game_plays_2017[result.eventTypeId=="FACEOFF"]) +
+  geom_hex(aes(x=s.x,y=coordinates.y)) +
+  scale_x_continuous(limits = c(-100,100)) +
+  scale_y_continuous(limits = c(-50,50)) +
+  scale_fill_continuous(trans="reverse") +
+  labs(x="x coordinate"
+       ,y="y coordinate"
+       ,title="Regular season face offs (2017-18)")
+
+ggplot(vF_game_plays_2017[result.eventTypeId=="SHOT"]) +
+  geom_hex(aes(x=s.x,y=coordinates.y)) +
+  scale_x_continuous(limits = c(-100,100)) +
+  scale_y_continuous(limits = c(-50,50)) +
+  scale_fill_continuous(trans="reverse") +
+  labs(x="x coordinate"
+       ,y="y coordinate"
+       ,title="Regular season shots (2017-18)")
