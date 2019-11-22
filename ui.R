@@ -1,5 +1,4 @@
 library(shinydashboard)
-source("chooser.R")
 
 header <- dashboardHeader(
   title = "Ice Hockey"
