@@ -114,4 +114,10 @@ ggplot(vF_game_plays_2017[result.eventTypeId=="SHOT"]) +
        ,title="Regular season shots (2017-18)")
 ```
 
+We made progress setting up the general layout of our UI. The sample below includes a collapsible Inputs tab. We will continue to add our different filters here. We want the user to have the option of selecting multiple teams on either side of the visualization so we will implement a chooser window where you can place teams on either the left or right side. 
+
+We want it to be easy and quick to switch between viewing different event types so we include those filters as checkmarks along side the hockey rink. Most filters we add in the future can take the form of drop down menus in the Inputs tab.
+
+After we achieve minimum viable product we will consider also allowing the user to filter by individual games. There are 82 games in a season and we don't want to clutter the main interface. Therefore we will likely allow that selection in a pop up window.
+
 ![UI sample](pset_5A_initial_UI.PNG)
