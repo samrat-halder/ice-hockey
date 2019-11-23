@@ -27,8 +27,9 @@ body <- dashboardBody(
     div(style="display: inline-block;vertical-align:top; width: 150px;",checkboxInput('hits', 'Hits', value = FALSE, width = NULL))
   ),
   fluidRow(
-    tags$img(src='full-rink-2.png', width = '100%'))
+    #tags$img(src='full-rink-2.png', width = '100%'))
+    mainPanel(plotlyOutput("icemap"), status = "warning", title = "title4", width = '100%', solidHeader = TRUE)
   
+  )
 )
-
 ui <- dashboardPage(header, sidebar, body, skin = "blue")

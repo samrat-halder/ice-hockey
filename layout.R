@@ -34,7 +34,7 @@ df %>%
         x = 0,
         y = 0,
         sizex = 200,
-        sizey = 150,
+        sizey = 300,
         opacity = 0.8,
         layer = "below",
         xanchor = "center",
