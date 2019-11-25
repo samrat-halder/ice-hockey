@@ -15,6 +15,7 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   fluidPage(theme = shinytheme("united"),
   fluidRow(
+    align='center',
     #collapsible box for main inputs
     box(solidHeader = T, collapsible = T, width = '100%',
         title = "Filters", status = "primary", background = "blue",
@@ -43,7 +44,7 @@ body <- dashboardBody(
   ),
   fluidRow(
     align = "center",
-    mainPanel(plotlyOutput("icemap"), status = "warning", title = "", width = '100%', solidHeader = TRUE))
+    plotlyOutput("icemap"), status = "warning", title = "", width = '100%', solidHeader = TRUE)
   
   )
 )
