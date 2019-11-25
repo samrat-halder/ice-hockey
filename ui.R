@@ -13,7 +13,7 @@ sidebar <- dashboardSidebar(
   )
 )
 body <- dashboardBody(
-  fluidPage(theme = shinytheme("united"),
+  fluidPage(
   fluidRow(
     align='center',
     #collapsible box for main inputs

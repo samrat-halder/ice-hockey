@@ -35,20 +35,21 @@ server <-function(input, output) {
                   colors = c("dodgerblue", "darksalmon")
       ) %>%
       layout(
-        xaxis = list(range = c(-120,120)),
-        yaxis = list(range = c(-60,60)),
+        xaxis = list(range = c(-110,110)),
+        yaxis = list(range = c(-50,50)),
         images= list(
           source= paste('data:image/png;base64', txt, sep=','),
           xref= "x",
           yref= "y",
           x = 0,
           y = 0,
-          sizex = 260,
-          sizey = 160,
+          sizex = 240,
+          sizey = 100,
           opacity = 0.8,
           layer = "below",
           xanchor = "center",
-          yanchor = "middle"
+          yanchor = "middle",
+          sizing = "stretch"
         )
       )
   })
