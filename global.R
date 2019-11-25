@@ -1,5 +1,4 @@
 library(shiny)
 source('ui.R', local = TRUE)
 source('server.R')
-load("~/GitHub/Ice-Hockey/data/2019-11-21_nhl-cleaned-data.RData")
 shinyApp(ui=ui,server = server)

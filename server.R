@@ -4,7 +4,7 @@ server <-function(input, output) {
   output$icemap <- renderPlotly({
     
     
-    library(plotly)
+    #library(plotly)
     
     #get the ID of each team in the inputs
     left_team_id <- vF_teams_DT[long.name == input$leftTeam]$team.id
