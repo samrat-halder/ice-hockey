@@ -26,13 +26,11 @@ server <-function(input, output) {
     image_file <- "full-rink.png"
     txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
     df %>% 
-      plot_ly(x = ~coordinates.x, y=~coordinates.y)  %>% 
+      plot_ly(x = ~coordinates.x, y=~coordinates.y, marker = list(size = 10))  %>% 
       add_markers(
-        #size = ~event_type,
-                  size = 150,
-                  alpha = 0.75,
+                  alpha = 0.25,
                   color = ~factor(team.id.for),
-                  colors = c("dodgerblue", "darksalmon")
+                  colors = c("dodgerblue", "darksalmon"),
       ) %>%
       layout(
         xaxis = list(range = c(-110,110)),
