@@ -131,6 +131,10 @@ get_request_json <- fromJSON(get_request_text, flatten=TRUE)
 
 seasons_DT <- setDT(get_request_json$seasons)
 
+### testing
+game_id <- paste0(2018,"02","0014")
+
+
 ### Writing function to pull game data
 pull_game_data <- function(season, type, game){
   # Setting up and making call
@@ -142,6 +146,12 @@ pull_game_data <- function(season, type, game){
   get_request <- GET(call)
   get_request_text <- content(get_request, "text")
   get_request_json <- fromJSON(get_request_text, flatten=TRUE)
+  
+  # Pulling out other basic info
+  period_summary <- setDT(get_request_json$liveData$linescore$periods)
+  shootout_status <- get_request_json$liveData$linescore$hasShootout
+  venue <- setDT(get_request_json$gameData$venue)
+  timing <- setDT(get_request_json$gameData$datetime)
   
   # Pulling out plays info if available
   plays <- setDT(get_request_json$liveData$plays$allPlays)
@@ -160,20 +170,16 @@ pull_game_data <- function(season, type, game){
     plays[team.id.for == home_team,c('team.id.against','HoA') := list(away_team,'H')]
     plays[team.id.for == away_team,c('team.id.against','HoA'):= list(home_team,'A')]
     
-    plays <- merge(plays,period_summary[,.(num,home.rinkSide,away.rinkSide)],by.x='about.period',by.y='num')
-    
-    plays[, coordinates.x := as.integer(coordinates.x)]
-    plays[HoA == 'H', s.x := ifelse(home.rinkSide=='left',coordinates.x,-coordinates.x)]
-    plays[HoA == 'A', s.x := ifelse(away.rinkSide=='right',coordinates.x,-coordinates.x)]
-    
-    plays[,r.x := abs(s.x)][,l.x := -r.x]
+    try({
+      plays <- merge(plays,period_summary[,.(num,home.rinkSide,away.rinkSide)],by.x='about.period',by.y='num')
+      plays[, coordinates.x := as.integer(coordinates.x)]
+      
+      plays[HoA == 'H', s.x := ifelse(home.rinkSide=='left',coordinates.x,-coordinates.x)]
+      plays[HoA == 'A', s.x := ifelse(away.rinkSide=='right',coordinates.x,-coordinates.x)]
+      
+      plays[,r.x := abs(s.x)][,l.x := -r.x]
+    },silent=T)
   }
-  
-  # Pulling out other basic info
-  period_summary <- setDT(get_request_json$liveData$linescore$periods)
-  shootout_status <- get_request_json$liveData$linescore$hasShootout
-  venue <- setDT(get_request_json$gameData$venue)
-  timing <- setDT(get_request_json$gameData$datetime)
   
   # Determining who won
   home_win <- 0
@@ -234,14 +240,14 @@ pull_game_data <- function(season, type, game){
 } 
 
 ### Testing function
-sel_season <- 2017 #for the 2017 season
+sel_season <- 2018 #for the 2017 season
 sel_type <- "02" # Regular season (01=preseason, 02=regular season, 03=playoffs, 04=allstar)
-sel_game <- "0018"
+sel_game <- "0014"
 
 test_output <- pull_game_data(sel_season, sel_type, sel_game)
 
 ### Pulling plays for all games in 2017
-sel_season <- 2017
+sel_season <- 2018
 sel_type <- "02"
 
 game_plays_l <- list()
@@ -282,7 +288,6 @@ game_goalie_stats_2017 <- rbindlist(game_goalie_stats_l, use.names=T, idcol="gam
 game_info_2017 <- rbindlist(game_info_l, use.names=T, idcol="game.id", fill=T)
 no_play_data_2017 <- data.table(game.id=names(no_play_data_l)
                                 ,no.data=unlist(no_play_data_l))
-
 
 ### Things that come back from a game call
 # 1) copyright - can be ignored
@@ -477,3 +482,4 @@ ggplot(vF_game_plays_2017[result.eventTypeId=="SHOT"]) +
   labs(x="x coordinate"
        ,y="y coordinate"
        ,title="Regular season shots (2017-18)")
+
