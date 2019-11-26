@@ -6,7 +6,9 @@ server <-function(input, output) {
       left_team_id <- vF_teams_DT[long.name == input$leftTeam]$team.id
       right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
       #filtering by teams and also by event types - probably a more elegant way to do this
-      df <- vF_game_plays_2018[(team.id.for == left_team_id |  team.id.for == right_team_id) & (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL')]
+      df <- vF_game_plays_2017_18[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
+                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+                                    (as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000)]
       if (input$shots == FALSE) {
         df <- df[result.eventTypeId != 'SHOT']
       }
@@ -52,7 +54,9 @@ server <-function(input, output) {
     left_team_id <- vF_teams_DT[long.name == input$leftTeam]$team.id
     right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
     #filtering by teams and also by event types - probably a more elegant way to do this
-    df <- vF_game_plays_2017[(team.id.for == left_team_id |  team.id.for == right_team_id) & (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL')]
+    df <- vF_game_plays_2017_18[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
+                               (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+                               (as.numeric(game.id) > 2016999999 & as.numeric(game.id) < 2018000000)]
     if (input$shots == FALSE) {
       df <- df[result.eventTypeId != 'SHOT']
     }
@@ -98,7 +102,9 @@ server <-function(input, output) {
       left_team_id <- vF_teams_DT[long.name == input$leftTeam]$team.id
       right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
       #filtering by teams and also by event types - probably a more elegant way to do this
-      df <- vF_game_plays_2016[(team.id.for == left_team_id |  team.id.for == right_team_id) & (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL')]
+      df <- vF_game_plays_2017_18[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
+                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+                                    (as.numeric(game.id) > 2015999999 & as.numeric(game.id) < 2017000000)]
       if (input$shots == FALSE) {
         df <- df[result.eventTypeId != 'SHOT']
       }
@@ -144,7 +150,9 @@ server <-function(input, output) {
       left_team_id <- vF_teams_DT[long.name == input$leftTeam]$team.id
       right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
       #filtering by teams and also by event types - probably a more elegant way to do this
-      df <- vF_game_plays_2015[(team.id.for == left_team_id |  team.id.for == right_team_id) & (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL')]
+      df <- vF_game_plays_2017_18[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
+                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+                                    (as.numeric(game.id) > 2014999999 & as.numeric(game.id) < 2016000000)]
       if (input$shots == FALSE) {
         df <- df[result.eventTypeId != 'SHOT']
       }
