@@ -3,6 +3,19 @@ library(plotly)
 library(shinythemes)
 load("./data/2019-11-26_nhl-cleaned-data.RData")
 
+team_choices <- list()
+teams_west <- list()
+teams_east <- list()
+for (i in 1:nrow(vF_teams_DT)) {
+  team_choices <- append(team_choices,vF_teams_DT$long.name[i])
+  if (vF_teams_DT$conference.name[i] == "Western") {
+    teams_west <- append(teams_west,vF_teams_DT$team.id[i])
+  }else{
+      teams_east <- append(teams_east,vF_teams_DT$team.id[i])
+  }
+}
+team_choices <- append(team_choices,c("All","Western Conference","Eastern Conference"))
+
 header <- dashboardHeader(
   title = span("NHL ICE HOCKEY", 
                span("dashboard", 
@@ -51,13 +64,13 @@ body <- dashboardBody(
             #input selections are inside div so we can place left and right inputs side by side
             div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: -1em;",
                 titlePanel('Left'),
-                selectInput('leftTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'Boston Bruins', multiple = FALSE,
+                selectInput('leftTeam', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL),
                 selectInput('leftHome', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL)),
             div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
                 titlePanel('Right'),
-                selectInput('rightTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'New York Rangers', multiple = FALSE,
+                selectInput('rightTeam', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL),
                 selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL))
@@ -67,8 +80,7 @@ body <- dashboardBody(
         fluidRow(
           align = "center",
           div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('shots', 'Shots', value = TRUE, width = NULL)),
-          div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL)),
-          div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('hits', 'Hits', value = TRUE, width = NULL))
+          div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL))
         ),
         fluidRow(
           align = "center", 
@@ -87,13 +99,13 @@ body <- dashboardBody(
                 #input selections are inside div so we can place left and right inputs side by side
                 div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: -1em;",
                     titlePanel('Left'),
-                    selectInput('leftTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'Boston Bruins', multiple = FALSE,
+                    selectInput('leftTeam', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL),
                     selectInput('leftHome', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL)),
                 div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
                     titlePanel('Right'),
-                    selectInput('rightTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'New York Rangers', multiple = FALSE,
+                    selectInput('rightTeam', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                 selectize = TRUE, width = NULL, size = NULL),
                     selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                                 selectize = TRUE, width = NULL, size = NULL))
@@ -104,8 +116,7 @@ body <- dashboardBody(
           fluidRow(
             align = "center",
             div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('shots', 'Shots', value = TRUE, width = NULL)),
-            div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL)),
-            div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('hits', 'Hits', value = TRUE, width = NULL))
+            div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL))
           ),
           fluidRow(
             align = "center", 
@@ -124,13 +135,13 @@ body <- dashboardBody(
                 #input selections are inside div so we can place left and right inputs side by side
                 div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: -1em;",
                     titlePanel('Left'),
-                    selectInput('leftTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'Boston Bruins', multiple = FALSE,
+                    selectInput('leftTeam', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                                 selectize = TRUE, width = NULL, size = NULL),
                     selectInput('leftHome', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
                                 selectize = TRUE, width = NULL, size = NULL)),
                 div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
                     titlePanel('Right'),
-                    selectInput('rightTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'New York Rangers', multiple = FALSE,
+                    selectInput('rightTeam', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                 selectize = TRUE, width = NULL, size = NULL),
                     selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                                 selectize = TRUE, width = NULL, size = NULL))
@@ -141,8 +152,7 @@ body <- dashboardBody(
             fluidRow(
               align = "center",
               div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('shots', 'Shots', value = TRUE, width = NULL)),
-              div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL)),
-              div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('hits', 'Hits', value = TRUE, width = NULL))
+              div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL))
             ),
             fluidRow(
               align = "center", 
@@ -161,13 +171,13 @@ body <- dashboardBody(
               #input selections are inside div so we can place left and right inputs side by side
               div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: -1em;",
                   titlePanel('Left'),
-                  selectInput('leftTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'Boston Bruins', multiple = FALSE,
+                  selectInput('leftTeam', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                               selectize = TRUE, width = NULL, size = NULL),
                   selectInput('leftHome', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
                               selectize = TRUE, width = NULL, size = NULL)),
               div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
                   titlePanel('Right'),
-                  selectInput('rightTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'New York Rangers', multiple = FALSE,
+                  selectInput('rightTeam', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                               selectize = TRUE, width = NULL, size = NULL),
                   selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                               selectize = TRUE, width = NULL, size = NULL))
@@ -178,8 +188,7 @@ body <- dashboardBody(
             fluidRow(
               align = "center",
               div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('shots', 'Shots', value = TRUE, width = NULL)),
-              div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL)),
-              div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('hits', 'Hits', value = TRUE, width = NULL))
+              div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL))
             ),
             fluidRow(
               align = "center", 
@@ -198,13 +207,13 @@ body <- dashboardBody(
                             #input selections are inside div so we can place left and right inputs side by side
                             div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: -1em;",
                                 titlePanel('Left'),
-                                selectInput('leftTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'Boston Bruins', multiple = FALSE,
+                                selectInput('leftTeam', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                                             selectize = TRUE, width = NULL, size = NULL),
                                 selectInput('leftHome', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
                                             selectize = TRUE, width = NULL, size = NULL)),
                             div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
                                 titlePanel('Right'),
-                                selectInput('rightTeam', 'Team', choices = vF_teams_DT$long.name, selected = 'New York Rangers', multiple = FALSE,
+                                selectInput('rightTeam', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                             selectize = TRUE, width = NULL, size = NULL),
                                 selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                                             selectize = TRUE, width = NULL, size = NULL))
@@ -215,8 +224,7 @@ body <- dashboardBody(
                       fluidRow(
                         align = "center",
                         div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('shots', 'Shots', value = TRUE, width = NULL)),
-                        div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL)),
-                        div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('hits', 'Hits', value = TRUE, width = NULL))
+                        div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = TRUE, width = NULL))
                       ),
                       fluidRow(
                         align = "center", 

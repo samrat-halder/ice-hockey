@@ -1,23 +1,57 @@
 server <-function(input, output) {
   #Here goes the plots
+  
   output$icemap_2018 <- renderPlotly(
     {
       #get the ID of each team in the inputs
       left_team_id <- vF_teams_DT[long.name == input$leftTeam]$team.id
       right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
+      
+      if (input$leftTeam == "All") {
+        df_left <- vF_game_plays
+      }else if (input$leftTeam == "Western Conference") {
+        df_left <- vF_game_plays[team.id.for %in% teams_west]
+      }else if (input$leftTeam == "Eastern Conference") {
+        df_left <- vF_game_plays[team.id.for %in% teams_east]
+      }else{
+        df_left <- vF_game_plays[team.id.for == left_team_id]
+      }
+      
+      
+      if (input$leftTeam == "All") {
+        df_right <- vF_game_plays
+      }else if (input$rightTeam == "Western Conference") {
+        df_right <- vF_game_plays[team.id.for %in% teams_west]
+      }else if (input$rightTeam == "Eastern Conference") {
+        df_right <- vF_game_plays[team.id.for %in% teams_east]
+      }else{
+        df_right <- vF_game_plays[team.id.for == right_team_id]
+      }
+      
+      
+      
+      
       #filtering by teams and also by event types - probably a more elegant way to do this
-      df <- vF_game_plays[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
-                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
-                                    (as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000)]
+      df_left <- df_left[(result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
+                           (as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000)]
       if (input$shots == FALSE) {
-        df <- df[result.eventTypeId != 'SHOT']
+        df_left <- df_left[result.eventTypeId != 'SHOT']
       }
       if (input$goals == FALSE) {
-        df <- df[result.eventTypeId != 'GOAL']
+        df_left <- df_left[result.eventTypeId != 'GOAL']
       }
-      if (input$hits == FALSE) {
-        df <- df[result.eventTypeId != 'HIT']
+      
+      df_right <- df_right[(result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
+                             (as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000)]
+      if (input$shots == FALSE) {
+        df_right <- df_right[result.eventTypeId != 'SHOT']
       }
+      if (input$goals == FALSE) {
+        df_right <- df_right[result.eventTypeId != 'GOAL']
+      }
+      
+      df <- rbind(df_left,df_right)
+      
       #set the rink image and plot
       image_file <- "full-rink.png"
       txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
@@ -53,19 +87,52 @@ server <-function(input, output) {
     #get the ID of each team in the inputs
     left_team_id <- vF_teams_DT[long.name == input$leftTeam]$team.id
     right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
+    
+    if (input$leftTeam == "All") {
+      df_left <- vF_game_plays
+    }else if (input$leftTeam == "Western Conference") {
+      df_left <- vF_game_plays[team.id.for %in% teams_west]
+    }else if (input$leftTeam == "Eastern Conference") {
+      df_left <- vF_game_plays[team.id.for %in% teams_east]
+    }else{
+      df_left <- vF_game_plays[team.id.for == left_team_id]
+    }
+    
+    
+    if (input$leftTeam == "All") {
+      df_right <- vF_game_plays
+    }else if (input$rightTeam == "Western Conference") {
+      df_right <- vF_game_plays[team.id.for %in% teams_west]
+    }else if (input$rightTeam == "Eastern Conference") {
+      df_right <- vF_game_plays[team.id.for %in% teams_east]
+    }else{
+      df_right <- vF_game_plays[team.id.for == right_team_id]
+    }
+    
+    
+    
+    
     #filtering by teams and also by event types - probably a more elegant way to do this
-    df <- vF_game_plays[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
-                               (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+    df_left <- df_left[(result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
                                (as.numeric(game.id) > 2016999999 & as.numeric(game.id) < 2018000000)]
     if (input$shots == FALSE) {
-      df <- df[result.eventTypeId != 'SHOT']
+      df_left <- df_left[result.eventTypeId != 'SHOT']
     }
     if (input$goals == FALSE) {
-      df <- df[result.eventTypeId != 'GOAL']
+      df_left <- df_left[result.eventTypeId != 'GOAL']
     }
-    if (input$hits == FALSE) {
-      df <- df[result.eventTypeId != 'HIT']
+    
+    df_right <- df_right[(result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
+                         (as.numeric(game.id) > 2016999999 & as.numeric(game.id) < 2018000000)]
+    if (input$shots == FALSE) {
+      df_right <- df_right[result.eventTypeId != 'SHOT']
     }
+    if (input$goals == FALSE) {
+      df_right <- df_right[result.eventTypeId != 'GOAL']
+    }
+    
+    df <- rbind(df_left,df_right)
+    
     #set the rink image and plot
     image_file <- "full-rink.png"
     txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
@@ -103,16 +170,13 @@ server <-function(input, output) {
       right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
       #filtering by teams and also by event types - probably a more elegant way to do this
       df <- vF_game_plays[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
-                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
                                     (as.numeric(game.id) > 2015999999 & as.numeric(game.id) < 2017000000)]
       if (input$shots == FALSE) {
         df <- df[result.eventTypeId != 'SHOT']
       }
       if (input$goals == FALSE) {
         df <- df[result.eventTypeId != 'GOAL']
-      }
-      if (input$hits == FALSE) {
-        df <- df[result.eventTypeId != 'HIT']
       }
       #set the rink image and plot
       image_file <- "full-rink.png"
@@ -151,16 +215,13 @@ server <-function(input, output) {
       right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
       #filtering by teams and also by event types - probably a more elegant way to do this
       df <- vF_game_plays[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
-                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+                                    (result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
                                     (as.numeric(game.id) > 2014999999 & as.numeric(game.id) < 2016000000)]
       if (input$shots == FALSE) {
         df <- df[result.eventTypeId != 'SHOT']
       }
       if (input$goals == FALSE) {
         df <- df[result.eventTypeId != 'GOAL']
-      }
-      if (input$hits == FALSE) {
-        df <- df[result.eventTypeId != 'HIT']
       }
       #set the rink image and plot
       image_file <- "full-rink.png"
@@ -200,16 +261,13 @@ server <-function(input, output) {
       right_team_id <- vF_teams_DT[long.name == input$rightTeam]$team.id
       #filtering by teams and also by event types - probably a more elegant way to do this
       df <- vF_game_plays[(team.id.for == left_team_id |  team.id.for == right_team_id) & 
-                            (result.eventTypeId == 'SHOT' | result.eventTypeId == 'HIT' | result.eventTypeId == 'GOAL') &
+                            (result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
                             (as.numeric(game.id) > 2013999999 & as.numeric(game.id) < 2015000000)]
       if (input$shots == FALSE) {
         df <- df[result.eventTypeId != 'SHOT']
       }
       if (input$goals == FALSE) {
         df <- df[result.eventTypeId != 'GOAL']
-      }
-      if (input$hits == FALSE) {
-        df <- df[result.eventTypeId != 'HIT']
       }
       #set the rink image and plot
       image_file <- "full-rink.png"
