@@ -56,12 +56,6 @@ server <-function(input, output, session) {
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
-              #checkboxes for each event type (more to be added)
-              #fluidRow(
-              #  align = "center",
-              #  div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('shots', 'Shots', value = FALSE, width = NULL)),
-              #  div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals', 'Goals', value = FALSE, width = NULL))
-              #),
               fluidRow(
                 align = "center", 
                 box(status = "primary", title = "Rink Layout", width = '100%',
@@ -133,12 +127,6 @@ server <-function(input, output, session) {
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
-              #checkboxes for each event type (more to be added)
-              #fluidRow(
-              #  align = "center",
-              #  div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('shots2', 'Shots', value = input$shots2, width = NULL)),
-              #  div(style="display: inline-block;vertical-align:top; width: 150px; margin:-2em",checkboxInput('goals2', 'Goals', value = input$goals2, width = NULL))
-              #),
               fluidRow(
                 align = "center", 
                 box(status = "primary", title = "Rink Layout", width = '100%',
