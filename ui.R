@@ -66,13 +66,13 @@ body <- dashboardBody(
                 titlePanel('Left'),
                 selectInput('leftTeam', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL),
-                selectInput('leftHome', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
+                selectInput('leftHome', 'Home or Away', choices = c('All','Home','Away'), selected = 'Home', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL)),
             div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
                 titlePanel('Right'),
                 selectInput('rightTeam', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL),
-                selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
+                selectInput('rightHome', 'Home or Away', choices = c('All','Home','Away'), selected = 'Away', multiple = FALSE,
                             selectize = TRUE, width = NULL, size = NULL))
           )
         ),

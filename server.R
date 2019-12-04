@@ -30,7 +30,6 @@ server <-function(input, output) {
       
       
       
-      
       #filtering by teams and also by event types - probably a more elegant way to do this
       df_left <- df_left[(result.eventTypeId == 'SHOT' | result.eventTypeId == 'GOAL') &
                            (as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000)]
@@ -50,17 +49,53 @@ server <-function(input, output) {
         df_right <- df_right[result.eventTypeId != 'GOAL']
       }
       
-      df <- rbind(df_left,df_right)
+      #home v away
+      if (input$leftHome == "Home") {
+        games_left <- vF_game_info[as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000 & home.teamID == left_team_id]
+        df_left <- df_left[game.id %in% games_left$game.id]
+      }else if (input$leftHome == "Away") {
+        games_left <- vF_game_info[as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000 & away.teamID == left_team_id]
+        df_left <- df_left[game.id %in% games_left$game.id]
+      }
+        
+      if (input$rightHome == "Home") {
+        games_right <- vF_game_info[as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000 & home.teamID == right_team_id]
+        df_right <- df_right[game.id %in% games_right$game.id]
+      }else if (input$rightHome == "Away") {
+        games_right <- vF_game_info[as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000 & away.teamID == right_team_id]
+        df_right <- df_right[game.id %in% games_right$game.id]
+      }
+      
+      df_left_shots <- df_left[result.eventTypeId == 'SHOT']
+      df_left_goals <- df_left[result.eventTypeId == 'GOAL']
+      df_right_shots <- df_right[result.eventTypeId == 'SHOT']
+      df_right_goals <- df_right[result.eventTypeId == 'GOAL']
+      #df$home <- game.id
       
       #set the rink image and plot
       image_file <- "full-rink.png"
       txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
-      df %>% 
-        plot_ly(x = ~coordinates.x, y=~coordinates.y, marker = list(size = 10))  %>% 
+      plot_ly()  %>% 
         add_markers(
-          alpha = 0.25,
-          color = ~factor(team.id.for),
-          colors = c("dodgerblue", "darksalmon"),
+          data = df_left_shots,
+          hoverinfo='skip',
+          x = ~l.x, y=~coordinates.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+        ) %>%
+        add_markers(
+          data = df_right_shots,
+          hoverinfo='skip',
+          x = ~r.x, y=~coordinates.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+          #alpha = min(750/nrow(df),0.01)
+        ) %>%
+        add_markers(
+          data = df_left_goals,
+          x = ~l.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+          #alpha = .8
+        ) %>%
+        add_markers(
+          data = df_right_goals,
+          x = ~r.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+          #alpha = .8
         ) %>%
         layout(
           xaxis = list(range = c(-110,110)),
@@ -131,7 +166,7 @@ server <-function(input, output) {
       df_right <- df_right[result.eventTypeId != 'GOAL']
     }
     
-    df <- rbind(df_left,df_right)
+    
     
     #set the rink image and plot
     image_file <- "full-rink.png"
