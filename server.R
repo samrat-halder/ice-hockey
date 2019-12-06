@@ -69,6 +69,9 @@ server <-function(input, output, session) {
     return(vF_game_plays[team.id.for == right_team_id() & (as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
                          & game.id %in% games_right$game.id])
   }) 
+  output$performanceByPlayer <- renderUI({
+    
+  })
   output$performanceByTeam <- renderUI({
     fluidPage(theme = shinytheme("slate"),
               fluidRow(
