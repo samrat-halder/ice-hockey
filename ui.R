@@ -19,14 +19,8 @@ sidebar <- dashboardSidebar(
              menuSubItem('Team', tabName = 'team_shots'),
              menuSubItem('Arena', tabName = 'arena_shots')
     ),
-    menuItem('Season Statistics',
-             menuSubItem('2018', tabName = '2018_stat'),
-             menuSubItem('2017', tabName = '2017_stat')
-    ),
-    menuItem('Team Performance',
-             menuSubItem('2018', tabName = '2018_perf'),
-             menuSubItem('2017', tabName = '2017_perf')
-    )
+    menuItem('Season Statistics', tabName = 'season'),
+    menuItem('Team Performance', tabName = 'team')
   )
 )
 body <- dashboardBody(
@@ -35,7 +29,9 @@ body <- dashboardBody(
   ),
   tabItems(
     tabItem('team_shots', uiOutput('shotByTeam')),
-    tabItem('Arena_shots', uiOutput('shotByArena'))
+    tabItem('arena_shots', uiOutput('shotByArena')),
+    tabItem('season'), uiOutput('statisticBySeason'),
+    tabItem('team', uiOutput('performanceByTeam'))
   )
 )
 ui <- dashboardPage(header, sidebar, body, skin = "blue")

@@ -1,4 +1,6 @@
 server <-function(input, output, session) {
+  team_choices <- unique(vF_teams_DT$long.name)
+  image_file <- "full-rink.png"
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
   })
@@ -83,6 +85,44 @@ server <-function(input, output, session) {
               )
     )
   })
+  output$statisticBySeason <- renderUI({
+    
+  })
+  output$performanceByTeam <- renderUI({
+    
+  })
+  output$shotByArena <- renderUI({
+    fluidPage(theme = shinytheme("slate"),
+              fluidRow(
+                align='center',
+                #collapsible box for main inputs
+                box(solidHeader = T, collapsible = T, width = '100%',
+                    title = "Filters", status = "primary", background = "blue",
+                    #input selections are inside div so we can place left and right inputs side by side
+                    div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: -1em;",
+                        titlePanel('Left'),
+                        selectInput('leftTeam2', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL),
+                        selectInput('leftHome2', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
+                        titlePanel('Right'),
+                        selectInput('rightTeam2', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL),
+                        selectInput('rightHome2', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
+                        selectInput('shots2', 'Shot Type', choices = c('SHOT','GOAL'), selected = 'GOAL', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL))
+                )
+              ),
+              fluidRow(
+                align = "center", 
+                box(status = "primary", title = "Rink Layout", width = '100%',
+                    plotlyOutput("icemap_Arena"))
+              )
+    )
+  })
   output$icemap_team <- renderPlotly(
     {
       df_left <- df_left()
@@ -91,8 +131,8 @@ server <-function(input, output, session) {
       df_left_goals <- df_left[result.eventTypeId == 'GOAL']
       df_right_shots <- df_right[result.eventTypeId == 'SHOT']
       df_right_goals <- df_right[result.eventTypeId == 'GOAL']
+      df <- rbind(df_left, df_right)
       #set the rink image and plot
-      image_file <- "full-rink.png"
       txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
       df %>% 
         plot_ly()  %>% 
@@ -137,44 +177,12 @@ server <-function(input, output, session) {
         )
     }
   )
-  output$shotByArena <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
-              fluidRow(
-                align='center',
-                #collapsible box for main inputs
-                box(solidHeader = T, collapsible = T, width = '100%',
-                    title = "Filters", status = "primary", background = "blue",
-                    #input selections are inside div so we can place left and right inputs side by side
-                    div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: -1em;",
-                        titlePanel('Left'),
-                        selectInput('leftTeam2', 'Team', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL),
-                        selectInput('leftHome2', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
-                        titlePanel('Right'),
-                        selectInput('rightTeam2', 'Team', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL),
-                        selectInput('rightHome2', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
-                        selectInput('shots2', 'Shot Type', choices = c('SHOT','GOAL'), selected = 'GOAL', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL))
-                )
-              ),
-              fluidRow(
-                align = "center", 
-                box(status = "primary", title = "Rink Layout", width = '100%',
-                    plotlyOutput("icemap_Arena"))
-              )
-    )
-  })
   output$icemap_Arena <- renderPlotly(
     {
       df_left <- df_left()
       df_right <- df_right()
+      df <- rbind(df_left, df_right)
       #set the rink image and plot
-      image_file <- "full-rink.png"
       txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
       df %>% 
         plot_ly()  %>% 
