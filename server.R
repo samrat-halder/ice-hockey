@@ -99,32 +99,60 @@ server <-function(input, output, session) {
     )
   })
   output$statisticBySeason <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
-              fluidRow(
-                align='center',
-                #collapsible box for main inputs
-                box(solidHeader = T, width = '100%',
-                    title = 'Arena', status = "primary", background = "blue",
-                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                        selectInput('yearStat', 'By Season', choices = c('2018','2017', '2016', '2015', '2014', 'All'), selected = '2018', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL))
-                )
-              ),
-              fluidRow(
-                align = "center",
-                DT::dataTableOutput("table_statistic_arena")
-              ),
-              fluidRow(
-                align='center',
-                box(solidHeader = T, width = '100%',
-                    title = 'Team', status = "primary", background = "blue"
-                )
-              ),
-              fluidRow(
-                align = "center",
-                DT::dataTableOutput("table_statistic_team")
-              )
-    )
+      tabsetPanel(type = 'tabs',
+          tabPanel("Summary",
+            fluidPage(theme = shinytheme("slate"),
+                      fluidRow(
+                        align='center',
+                        #collapsible box for main inputs
+                        box(solidHeader = T, width = '100%',
+                            title = 'Arena', status = "primary", background = "blue",
+                            div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                                selectInput('yearStat', 'By Season', choices = c('2018','2017', '2016', '2015', '2014', 'All'), selected = '2018', multiple = FALSE,
+                                            selectize = TRUE, width = NULL, size = NULL))
+                        )
+                      ),
+                      fluidRow(
+                        align = "center",
+                        DT::dataTableOutput("table_statistic_arena")
+                      ),
+                      fluidRow(
+                        align='center',
+                        box(solidHeader = T, width = '100%',
+                            title = 'Team', status = "primary", background = "blue"
+                        )
+                      ),
+                      fluidRow(
+                        align = "center",
+                        DT::dataTableOutput("table_statistic_team")
+                      )
+                    )
+                  ),
+            tabPanel("Visualization",
+                     fluidPage(theme = shinytheme("slate"),
+                               fluidRow(
+                                 align='center',
+                                 box(solidHeader = T, width = '100%',
+                                     title = 'Arena', status = "primary", background = "blue"
+                                 )
+                               ),
+                               fluidRow(
+                                 align='center',
+                                 box( plotOutput("Plot4"), status = "primary", width = 12, solidHeader = TRUE)
+                               ),
+                               fluidRow(
+                                 align='center',
+                                 box(solidHeader = T, width = '100%',
+                                     title = 'Team', status = "primary", background = "blue"
+                                 )
+                               ),
+                               fluidRow(
+                                 align='center',
+                                 box( plotOutput("Plot5"), status = "primary", width = 12, solidHeader = TRUE)
+                               )
+                     )
+            )
+      )
   })
   output$shotByTeam <- renderUI({
     fluidPage(theme = shinytheme("slate"),
