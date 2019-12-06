@@ -2,36 +2,56 @@ server <-function(input, output, session) {
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
   })
-  observeEvent(input$leftTeam2,{
-    updateSelectInput(session,inputId='leftTeam', selected = input$leftTeam2)
+  observeEvent(input$leftTeamArena,{
+    updateSelectInput(session,inputId='leftTeam', selected = input$leftTeamArena)
   }) 
-  observeEvent(input$rightTeam2,{
-    updateSelectInput(session,inputId = 'rightTeam', selected = input$rightTeam2)
+  observeEvent(input$rightTeamArena,{
+    updateSelectInput(session,inputId = 'rightTeam', selected = input$rightArena)
   }) 
-  observeEvent(input$shots2,{
-    updateSelectInput(session,inputId = 'shots', selected = input$shots2)
-  }) 
-
-  #Here goes the plots
   left_team_id <- reactive({
     return(vF_teams_DT[long.name == input$leftTeam]$team.id)
   })  
   right_team_id <- reactive({
     return(vF_teams_DT[long.name == input$rightTeam]$team.id)
   }) 
-  shots <- reactive({
-    return(vF_game_plays[result.eventTypeId == input$shots])
-  }
-  )
+  selected_year <- reactive({
+    return(input$year)
+  })
+  leftHome <- reactive({
+    return(input$leftHome)
+  })
+  rightHome <- reactive({
+    return(input$rightHome)
+  })
   df_left <- reactive({
-    tmp <- shots()
-    return(tmp[team.id.for == left_team_id()])
+    year <- selected_year()
+    upper_lim <- as.numeric(year) +1
+    upper_lim <- paste0(as.character(upper_lim),'000000')
+    lower_lim <- as.numeric(year) -1
+    lower_lim <- paste0( as.character(lower_lim),'999999')
+    if (leftHome() == 'Home') {
+      games_left <- vF_game_info[home.teamID == left_team_id()]
+    }else if (leftHome() == "Away") {
+      games_left <- vF_game_info[away.teamID == left_team_id()]
+    }
+    return(vF_game_plays[team.id.for == left_team_id() & (as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
+                         & game.id %in% games_left$game.id])
   }) 
   df_right <- reactive({
-    tmp <- shots()
-    return(tmp[team.id.for == right_team_id()])
+    year <- selected_year()
+    upper_lim <- as.numeric(year) +1
+    upper_lim <- paste0(as.character(upper_lim),'000000')
+    lower_lim <- as.numeric(year) -1
+    lower_lim <- paste0( as.character(lower_lim),'999999')
+    if (rightHome() == 'Home') {
+      games_right <- vF_game_info[home.teamID == right_team_id()]
+    }else if (rightHome() == "Away") {
+      games_right <- vF_game_info[away.teamID == right_team_id()]
+    }
+    return(vF_game_plays[team.id.for == right_team_id() & (as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
+                         & game.id %in% games_right$game.id])
   }) 
-  output$shot2018 <- renderUI({
+  output$shotByTeam <- renderUI({
     fluidPage(theme = shinytheme("slate"),
               fluidRow(
                 align='center',
@@ -51,36 +71,51 @@ server <-function(input, output, session) {
                                     selectize = TRUE, width = NULL, size = NULL),
                         selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: -1em;",
-                        selectInput('shots', 'Shot Type', choices = c('SHOT','GOAL'), selected = 'GOAL', multiple = FALSE,
+                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                        selectInput('year', 'By Year', choices = c('2018','2017', '2016', '2015', '2014'), selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
               fluidRow(
                 align = "center", 
                 box(status = "primary", title = "Rink Layout", width = '100%',
-                    plotlyOutput("icemap_2018"))
+                    plotlyOutput("icemap_team"))
               )
     )
   })
-  output$icemap_2018 <- renderPlotly(
+  output$icemap_team <- renderPlotly(
     {
       df_left <- df_left()
       df_right <- df_right()
-      #filtering by teams and also by event types - probably a more elegant way to do this
-      df_left <- df_left[(as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000)]
-      df_right <- df_right[(as.numeric(game.id) > 2017999999 & as.numeric(game.id) < 2019000000)]
-      df <- rbind(df_left,df_right)
-      
+      df_left_shots <- df_left[result.eventTypeId == 'SHOT']
+      df_left_goals <- df_left[result.eventTypeId == 'GOAL']
+      df_right_shots <- df_right[result.eventTypeId == 'SHOT']
+      df_right_goals <- df_right[result.eventTypeId == 'GOAL']
       #set the rink image and plot
       image_file <- "full-rink.png"
       txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
       df %>% 
-        plot_ly(x = ~coordinates.x, y=~coordinates.y, marker = list(size = 10))  %>% 
+        plot_ly()  %>% 
         add_markers(
-          alpha = 0.25,
-          color = ~factor(team.id.for),
-          colors = c("dodgerblue", "darksalmon"),
+          data = df_left_shots,
+          hoverinfo='skip',
+          x = ~l.x, y=~coordinates.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+        ) %>%
+        add_markers(
+          data = df_right_shots,
+          hoverinfo='skip',
+          x = ~r.x, y=~coordinates.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+          #alpha = min(750/nrow(df),0.01)
+        ) %>%
+        add_markers(
+          data = df_left_goals,
+          x = ~l.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+          #alpha = .8
+        ) %>%
+        add_markers(
+          data = df_right_goals,
+          x = ~r.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+          #alpha = .8
         ) %>%
         layout(
           xaxis = list(range = c(-110,110)),
@@ -102,7 +137,7 @@ server <-function(input, output, session) {
         )
     }
   )
-  output$shot2017 <- renderUI({
+  output$shotByArena <- renderUI({
     fluidPage(theme = shinytheme("slate"),
               fluidRow(
                 align='center',
@@ -130,28 +165,39 @@ server <-function(input, output, session) {
               fluidRow(
                 align = "center", 
                 box(status = "primary", title = "Rink Layout", width = '100%',
-                    plotlyOutput("icemap_2017"))
+                    plotlyOutput("icemap_Arena"))
               )
     )
   })
-  output$icemap_2017 <- renderPlotly(
+  output$icemap_Arena <- renderPlotly(
     {
     df_left <- df_left()
     df_right <- df_right()
-    #filtering by teams and also by event types - probably a more elegant way to do this
-    df_left <- df_left[(as.numeric(game.id) > 2016999999 & as.numeric(game.id) < 2018000000)]
-    df_right <- df_right[(as.numeric(game.id) > 2016999999 & as.numeric(game.id) < 2018000000)]
-    df <- rbind(df_left,df_right)
-    
     #set the rink image and plot
     image_file <- "full-rink.png"
     txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
     df %>% 
-      plot_ly(x = ~coordinates.x, y=~coordinates.y, marker = list(size = 10))  %>% 
+      plot_ly()  %>% 
       add_markers(
-                  alpha = 0.25,
-                  color = ~factor(team.id.for),
-                  colors = c("dodgerblue", "darksalmon"),
+        data = df_left_shots,
+        hoverinfo='skip',
+        x = ~l.x, y=~coordinates.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+      ) %>%
+      add_markers(
+        data = df_right_shots,
+        hoverinfo='skip',
+        x = ~r.x, y=~coordinates.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+        #alpha = min(750/nrow(df),0.01)
+      ) %>%
+      add_markers(
+        data = df_left_goals,
+        x = ~l.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+        #alpha = .8
+      ) %>%
+      add_markers(
+        data = df_right_goals,
+        x = ~r.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+        #alpha = .8
       ) %>%
       layout(
         xaxis = list(range = c(-110,110)),
