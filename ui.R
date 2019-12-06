@@ -2,6 +2,7 @@ library(shinydashboard)
 library(plotly)
 library(shinythemes)
 library(shinyjs)
+library(DT)
 load("./data/2019-11-26_nhl-cleaned-data.RData")
 
 header <- dashboardHeader(
@@ -30,7 +31,7 @@ body <- dashboardBody(
   tabItems(
     tabItem('team_shots', uiOutput('shotByTeam')),
     tabItem('arena_shots', uiOutput('shotByArena')),
-    tabItem('season'), uiOutput('statisticBySeason'),
+    tabItem('season', uiOutput('statisticBySeason')),
     tabItem('team', uiOutput('performanceByTeam'))
   )
 )
