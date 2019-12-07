@@ -356,16 +356,21 @@ server <-function(input, output, session) {
     colnames(dfGroupByArena)[6] <- 'name'
     us_cities <- us.cities
     us_cities$name <- str_sub(us_cities$name, end = -4)
-    arenaCities <- merge(us_cities, dfGroupByArena, by = 'name')  
-    MainStates <- map_data("state")
+    #dfGroupByArena$locationName <- c('TX', )
+    #colnames(dfGroupByArena)[7] <- 'country.etc'
+    arenaCities <- merge(us_cities, dfGroupByArena, by = 'name')
+    arenaCities <- arenaCities %>% distinct(name, .keep_all = TRUE)
+    arenaCitiesGather <- arenaCities %>% 
+      gather(key='GoalType', value = 'Goals', home.goals, away.goals) %>%
+      gather(key = 'WinType', value = 'Wins', home.win, away.win)
     set_breaks = function(limits) {
       seq(limits[1], limits[2], by = round((limits[2]-limits[1])/4))
     }
-    ggplot(data=arenaCities) + geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
-         color="lightyellow", fill="lightyellow" ) + geom_point(aes(x=long, y=lat, size = away.goals), 
-         color='violet',alpha = .5) + geom_point(aes(x=long, y=lat, color= home.goals), 
-          alpha = .9) + geom_text_repel(aes(x=long, y=lat, label=name), hjust=0, vjust=0, 
-          size=3.5) +  scale_color_continuous(breaks = set_breaks) + scale_size_continuous(breaks = set_breaks)
+    MainStates <- map_data("state")
+    ggplot(data=arenaCitiesGather) + geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
+         color="white", fill="white" ) + geom_point(aes(x=long, y=lat, size = Goals, color = GoalType), 
+         alpha = .5) + geom_text_repel(data = arenaCities, aes(x=long, y=lat, label=name), hjust=0, vjust=0, 
+          size=3.5) + scale_size_continuous(breaks = set_breaks) 
   })
   output$arenaMapWins <- renderPlot({
     statYear <- selected_yearStat()
@@ -381,16 +386,19 @@ server <-function(input, output, session) {
     colnames(dfGroupByArena)[6] <- 'name'
     us_cities <- us.cities
     us_cities$name <- str_sub(us_cities$name, end = -4)
-    arenaCities <- merge(us_cities, dfGroupByArena, by = 'name')  
-    MainStates <- map_data("state")
+    arenaCities <- merge(us_cities, dfGroupByArena, by = 'name') 
+    arenaCities <- arenaCities %>% distinct(name, .keep_all = TRUE)
+    arenaCitiesGather <- arenaCities %>% 
+      gather(key='GoalType', value = 'Goals', home.goals, away.goals) %>%
+      gather(key = 'WinType', value = 'Wins', home.win, away.win)
     set_breaks = function(limits) {
       seq(limits[1], limits[2], by = round((limits[2]-limits[1])/4))
     }
-    ggplot(data=arenaCities) + geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
-                    color="lightyellow", fill="lightyellow" ) + geom_point(aes(x=long, y=lat, size = away.win), 
-                    color='violet',alpha = .5) + geom_point(aes(x=long, y=lat, color= home.win), 
-                    alpha = .9) + geom_text_repel(aes(x=long, y=lat, label=name),hjust=0, vjust=0, 
-                    size=3.5) + scale_color_continuous(breaks = set_breaks) + scale_size_continuous(breaks = set_breaks)
+    MainStates <- map_data("state")
+    ggplot(data=arenaCitiesGather) + geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
+                    color="white", fill="white" ) + geom_point(aes(x=long, y=lat, size = Wins, color=WinType), 
+                    alpha = .5) + geom_text_repel(data = arenaCities, aes(x=long, y=lat, label=name), hjust=0, vjust=0, 
+                    size=3.5) + scale_size_continuous(breaks = set_breaks)
   })
   output$icemap_team <- renderPlotly({
       df_left <- df_left()
