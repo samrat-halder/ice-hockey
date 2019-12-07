@@ -157,7 +157,7 @@ server <-function(input, output, session) {
                         selectInput('teamPerf3', 'Select Team 3', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                        selectInput('yearTeam', 'Year', choices = c('2018','2017','2016','2015','2014','All'), selected = '2018', multiple = FALSE,
+                        selectInput('yearTeam', 'Year', choices = c(allYears,'All'), selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
@@ -179,7 +179,7 @@ server <-function(input, output, session) {
                         box(solidHeader = T, width = '100%',
                             title = 'Arena', status = "primary", background = "blue",
                             div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                                selectInput('yearStat', 'By Season', choices = c('2018','2017', '2016', '2015', '2014', 'All'), selected = '2018', multiple = FALSE,
+                                selectInput('yearStat', 'By Season', choices = c(allYears, 'All'), selected = '2018', multiple = FALSE,
                                             selectize = TRUE, width = NULL, size = NULL))
                         )
                       ),
@@ -244,7 +244,7 @@ server <-function(input, output, session) {
                         selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                        selectInput('year', 'Year', choices = c('2018','2017', '2016', '2015', '2014'), selected = '2018', multiple = FALSE,
+                        selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
@@ -271,7 +271,7 @@ server <-function(input, output, session) {
                         selectInput('arena', 'Arena', choices = arena_choices, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 35% ; margin-top: 0em;",
-                        selectInput('year', 'Year', choices = c('2018','2017', '2016', '2015', '2014'), selected = '2018', multiple = FALSE,
+                        selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)
                     )
                 )
