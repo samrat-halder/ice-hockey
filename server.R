@@ -1,6 +1,11 @@
 server <-function(input, output, session) {
+  allYears <- c('2018','2017','2016','2015','2014')
   team_choices <- unique(vF_teams_DT$long.name)
   arena_choices <- unique(vF_teams_DT$venue.name)
+  player_choices <- unique(paste(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$firstName, 
+                                 vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$lastName, 
+                                 sep=' '))
+ 
   image_file <- "full-rink.png"
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
@@ -40,6 +45,9 @@ server <-function(input, output, session) {
   })
   selected_yearPerf <- reactive({
     return(input$yearTeam)
+  })
+  selected_yearPlayer <- reactive({
+    return(input$yearPlayer)
   })
   leftHome <- reactive({
     return(input$leftHome)
@@ -96,7 +104,41 @@ server <-function(input, output, session) {
                          & game.id %in% games_arena$game.id])
   }) 
   output$performanceByPlayer <- renderUI({
-    
+    tabsetPanel(type = 'tabs',
+                tabPanel("Summary",
+                         fluidPage(theme = shinytheme("slate"),
+                                   fluidRow(
+                                     align='center',
+                                     #collapsible box for main inputs
+                                     box(solidHeader = T, width = '100%',
+                                         title = 'Arena', status = "primary", background = "blue",
+                                         div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                                             selectInput('yearPlayer', 'By Season', choices = c(allYears,'All'), selected = '2018', multiple = FALSE,
+                                                         selectize = TRUE, width = NULL, size = NULL))
+                                     )
+                                   ),
+                                   fluidRow(
+                                     align = "center",
+                                     DT::dataTableOutput("table_statistic_player")
+                                   )
+                         )
+                ),
+                tabPanel("Visualization",
+                         fluidPage(theme = shinytheme("slate"),
+                                   fluidRow(
+                                     align='center',
+                                     #collapsible box for main inputs
+                                     box(solidHeader = T, width = '100%',
+                                         title = 'Player', status = "primary", background = "blue",
+                                         div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                                             selectInput('playerStat', 'Select Player', choices = player_choices, selected = '', multiple = FALSE,
+                                                         selectize = TRUE, width = NULL, size = NULL))
+                                     )
+                                   )
+                                   #TODO: Add Plots for selected player
+                         )
+                )
+    )
   })
   output$performanceByTeam <- renderUI({
     fluidPage(theme = shinytheme("slate"),
@@ -250,12 +292,28 @@ server <-function(input, output, session) {
               )
     )
   })
+  output$table_statistic_player <- DT::renderDataTable({
+    playerYear <- selected_yearPlayer()
+    if (playerYear != 'All'){
+      dataPlayerYear <- vF_player_season_data[vF_player_season_data$season == playerYear]
+    } else {
+      dataPlayerYear <- vF_player_season_data[vF_player_season_data$season %in% allYears]
+    }
+    df <- dataPlayerYear[,c('player.id','stat.assists','stat.goals','stat.games','stat.shots','stat.gameWinningGoals')]
+    df <- df %>% drop_na()
+    dfGroupByPlayer <- aggregate(. ~ player.id, df, sum)
+    dfGroupByPlayer <- merge(dfGroupByPlayer, vF_player_info[,c('player.id','firstName','lastName')], by='player.id')
+    dfGroupByPlayer$Player <- paste(dfGroupByPlayer$firstName, dfGroupByPlayer$lastName, sep=' ')
+    dfGroupByPlayer <- subset(dfGroupByPlayer, select= names(dfGroupByPlayer) != c('player.id', 'firstName', 'lastName'))
+    dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.gameWinningGoals','stat.assists')]
+    DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 10))
+  })
   output$table_statistic_arena <- DT::renderDataTable({
     statYear <- selected_yearStat()
     if (statYear != 'All'){
       dataStatYear <- vF_game_info[vF_game_info$season == statYear]
     } else {
-      dataStatYear <- vF_game_info
+      dataStatYear <- vF_game_info[vF_game_info$season %in% allYears]
     }
     
     df <- dataStatYear[,c('name','home.win','away.win','home.goals','away.goals')]
