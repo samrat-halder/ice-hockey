@@ -4,6 +4,10 @@ library(shinythemes)
 library(shinyjs)
 library(DT)
 library(tidyr)
+library(ggplot2)
+library(maps) 
+library(dplyr)
+library(stringr)
 load("./data/2019-11-26_nhl-cleaned-data.RData")
 
 header <- dashboardHeader(

@@ -204,12 +204,13 @@ server <-function(input, output, session) {
                                fluidRow(
                                  align='center',
                                  box(solidHeader = T, width = '100%',
-                                     title = 'Arena', status = "primary", background = "blue"
+                                     title = 'Arena (by Cities) Home Vs Away Trend', status = "primary", background = "blue"
                                  )
                                ),
                                fluidRow(
                                  align='center',
-                                 box( plotOutput("Plot4"), status = "primary", width = 12, solidHeader = TRUE)
+                                 box(plotOutput("arenaMapGoals"), status = "primary", width = 6, solidHeader = TRUE, title = 'Goals'),
+                                 box(plotOutput("arenaMapWins"), status = "primary", width = 6, solidHeader = TRUE, title = 'Wins')
                                ),
                                fluidRow(
                                  align='center',
@@ -339,6 +340,57 @@ server <-function(input, output, session) {
     teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
     DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
+  })
+  output$arenaMapGoals <- renderPlot({
+    statYear <- selected_yearStat()
+    if (statYear != 'All'){
+      dataStatYear <- vF_game_info[vF_game_info$season == statYear]
+    } else {
+      dataStatYear <- vF_game_info[vF_game_info$season %in% allYears]
+    }
+    
+    df <- dataStatYear[,c('name','home.win','away.win','home.goals','away.goals')]
+    dfGroupByArena <- aggregate(. ~ name , df, sum)
+    colnames(dfGroupByArena)[1] <- 'venue.name'
+    dfGroupByArena <- merge(dfGroupByArena, vF_teams_DT[,c('venue.name', 'venue.city', 'locationName', 'division.name')], by = 'venue.name')
+    colnames(dfGroupByArena)[6] <- 'name'
+    us_cities <- us.cities
+    us_cities$name <- str_sub(us_cities$name, end = -4)
+    arenaCities <- merge(us_cities, dfGroupByArena, by = 'name')  
+    MainStates <- map_data("state")
+    set_breaks = function(limits) {
+      seq(limits[1], limits[2], by = round((limits[2]-limits[1])/4))
+    }
+    ggplot(data=arenaCities) + geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
+         color="lightyellow", fill="lightyellow" ) + geom_point(aes(x=long, y=lat, size = away.goals), 
+         color='violet',alpha = .5) + geom_point(aes(x=long, y=lat, color= home.goals), 
+          alpha = .9) + geom_text_repel(aes(x=long, y=lat, label=name), hjust=0, vjust=0, 
+          size=3.5) +  scale_color_continuous(breaks = set_breaks) + scale_size_continuous(breaks = set_breaks)
+  })
+  output$arenaMapWins <- renderPlot({
+    statYear <- selected_yearStat()
+    if (statYear != 'All'){
+      dataStatYear <- vF_game_info[vF_game_info$season == statYear]
+    } else {
+      dataStatYear <- vF_game_info[vF_game_info$season %in% allYears]
+    }
+    df <- dataStatYear[,c('name','home.win','away.win','home.goals','away.goals')]
+    dfGroupByArena <- aggregate(. ~ name , df, sum)
+    colnames(dfGroupByArena)[1] <- 'venue.name'
+    dfGroupByArena <- merge(dfGroupByArena, vF_teams_DT[,c('venue.name', 'venue.city', 'locationName', 'division.name')], by = 'venue.name')
+    colnames(dfGroupByArena)[6] <- 'name'
+    us_cities <- us.cities
+    us_cities$name <- str_sub(us_cities$name, end = -4)
+    arenaCities <- merge(us_cities, dfGroupByArena, by = 'name')  
+    MainStates <- map_data("state")
+    set_breaks = function(limits) {
+      seq(limits[1], limits[2], by = round((limits[2]-limits[1])/4))
+    }
+    ggplot(data=arenaCities) + geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
+                    color="lightyellow", fill="lightyellow" ) + geom_point(aes(x=long, y=lat, size = away.win), 
+                    color='violet',alpha = .5) + geom_point(aes(x=long, y=lat, color= home.win), 
+                    alpha = .9) + geom_text_repel(aes(x=long, y=lat, label=name),hjust=0, vjust=0, 
+                    size=3.5) + scale_color_continuous(breaks = set_breaks) + scale_size_continuous(breaks = set_breaks)
   })
   output$icemap_team <- renderPlotly({
       df_left <- df_left()
