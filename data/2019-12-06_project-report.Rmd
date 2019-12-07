@@ -1,0 +1,77 @@
+---
+title: "Home team advantage in the NHL"
+author: "Samrat Halder, Hariz Johnson, Jake Stamell"
+date: "12/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+# Project Overview
+
+## Background and research questions
+
+Home-team-advantage is a common phenomenon in sports. Intuitively, we expect a team to perform better in their hometown. They are used to that location, have their fans to support them, don’t need to travel to it, etc.
+
+But what does it really mean to have an advantage? Looking below the level of wins and losses, what happens to teams when they are at home and away? Does their style of playchange? Are there some places that are harder to play at than others? Are there teams that perform better when away compared to others?
+
+For our project, we explored these questions for ice hockey games in the National Hockey League (NHL). In recent years, the NHL has started tracking where and when events (like shots and goals) happen during the game. This provides a new opportunity to explore the game differently. Not only can we examine high-level game information, but we can also look at play-level details like where events occur on the ice.
+
+This project consists of the following report, which condenses and summarizes our findings. The first section provides a high-level overview of our project, while the second walks through the details of our analysis. We have also developed an interactive shiny app to allow the reader to explore different views of the data, as we have only included a sample here. We encourage the reader to use this after reading through the report.
+
+All code used for the project is availabe on the github page: [TBU].
+
+## What you need to know about hockey to understand this
+
+If you are familiar with the sport, feel free to skip this section. For those unfamiliar with the sport, we provide a brief overview of the relevant information on hockey and the NHL to be able to understand this report. There are penalties…
+
+Ice hockey is a sport where each team has 5 players and 1 goalie. Teams play 3 periods, each taking 20 minutes. The team with the most goals at the end wins.
+
+The types of plays in hockey consist of goals, shots, missed shots,
+
+Offensive plays
+- Goal: where one team scores
+- Shot: where a team shoots the puck on goal
+- Missed shot: where a team shoots the puck but misses the goal
+
+Defensive plays
+- Blocked shot: where a team shoots the puck, but the other team blocks it before it reaches the goal
+- Takeaway: when a team takes the puck away from the other team
+- Hit: when one player hits another (it's allowed and all players wear protective gear!)
+
+Other
+- Penalty: where a foul is called on a team (following a penalty, that team plays with one less player for a short period of time)
+- Giveaway: when a team loses the puck
+- Faceoff: these events start a play and happen in 9 fixed locations on the ice (similar to a tip off in basketball)
+
+The NHL is the professional hockey league in the United States. It consists of 31 teams (30 before 2017) that each play 82 games per year. Each team plays half of their games at home and half at other teams’ arenas.
+
+## Data collection
+
+We collected our data directly from the NHL.com API, using the httr package to make requests and the jsonlite package to parse the raw json data. While there is no formal documentation for this API, there is an online community that has documented some of the available endpoints (add reference). From there, we sifted through the information returned by these calls to find the information we were looking for. In Appendix A, we document our usage of the API.
+
+We gathered game data for all regular season games for the seasons in 2014-2018. This data consists of general information about the games (6232 total games) such as which teams played, who won, how many shots, where it was, etc. Additionally, we collected play-level data which records the location, team, players, and more of each major event in the game. This includes events like goals, shots, penalties, etc. (see appendix B). This is the primary data set for our project, consisting of (XXXK events)
+
+To recreate this dataset, visit our github for the project and use script []. The data itself is also directly available in the RData file [].
+
+## High level findings
+
+In the NHL, ~XX% of games are won by the home team. Digging in to the play-level data, we see that this advantage exists for all types of events. Not only do teams shoot and score (and thus win) more when they are the home team, they also are penalized less. Perhaps fans yelling at the referee does have some effect!
+
+While commonly held opinions say that the hardest rinks to play in are X, Y, and Z, we actually found that teams do worse at A and B. And the teams that do the best when they are away have these attributes:	
+
+# Detailed report
+
+## How big of an effect is home-team-advantage in hockey?
+
+## What does home team advantage look like for different types of events?
+
+## What arenas are the hardest to play at?
+
+## Case study: 
+
+## What teams out-perform when on the road?
+
+## Case study: 
