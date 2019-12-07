@@ -2,9 +2,15 @@ server <-function(input, output, session) {
   allYears <- c('2018','2017','2016','2015','2014')
   team_choices <- unique(vF_teams_DT$long.name)
   arena_choices <- unique(vF_teams_DT$venue.name)
-  player_choices <- unique(paste(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$firstName, 
-                                 vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$lastName, 
-                                 sep=' '))
+  vF_player_info$fullName <- paste(vF_player_info$firstName,vF_player_info$lastName,sep=' ')
+  vF_game_plays$game_and_event_id <- paste(vF_game_plays$game.id,vF_game_plays$about.eventIdx,sep='')
+  vF_game_plays_players$game_and_event_id <- paste(vF_game_plays_players$game.id,vF_game_plays_players$eventIdx,sep='')
+  
+  player_choices <- unique(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$fullName)
+  player_choices <- player_choices[order(player_choices)]
+  #player_choices <- unique(paste(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$firstName, 
+  #                               vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$lastName, 
+  #                               sep=' '))
  
   image_file <- "full-rink.png"
   observeEvent(input$tabs,{
@@ -36,6 +42,12 @@ server <-function(input, output, session) {
   })
   arena_team <- reactive({
     return(vF_teams_DT[venue.name == input$arena]$long.name)
+  })
+  left_player_id <- reactive({
+    return(vF_player_info[fullName == input$leftPlayer]$player.id)
+  })
+  right_player_id <- reactive({
+    return(vF_player_info[fullName == input$rightPlayer]$player.id)
   })
   selected_year <- reactive({
     return(input$year)
@@ -102,6 +114,26 @@ server <-function(input, output, session) {
     games_arena <- vF_game_info[name == input$arena]
     return(vF_game_plays[team.id.for != arena_team_id() & (as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
                          & game.id %in% games_arena$game.id])
+  }) 
+  df_left_player <- reactive({
+    year <- selected_year()
+    upper_lim <- as.numeric(year) +1
+    upper_lim <- paste0(as.character(upper_lim),'000000')
+    lower_lim <- as.numeric(year) -1
+    lower_lim <- paste0( as.character(lower_lim),'999999')
+    games_player <- vF_game_plays_players[player.id == left_player_id() & (playerType == "Scorer" | playerType == "Shooter")]
+    return(vF_game_plays[(as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
+                         & game_and_event_id %in% games_player$game_and_event_id])
+  }) 
+  df_right_player <- reactive({
+    year <- selected_year()
+    upper_lim <- as.numeric(year) +1
+    upper_lim <- paste0(as.character(upper_lim),'000000')
+    lower_lim <- as.numeric(year) -1
+    lower_lim <- paste0( as.character(lower_lim),'999999')
+    games_player <- vF_game_plays_players[player.id == right_player_id() & (playerType == "Scorer" | playerType == "Shooter")]
+    return(vF_game_plays[(as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
+                         & game_and_event_id %in% games_player$game_and_event_id])
   }) 
   output$performanceByTeam <- renderUI({
     fluidPage(theme = shinytheme("slate"),
@@ -255,7 +287,7 @@ server <-function(input, output, session) {
                                     selectize = TRUE, width = NULL, size = NULL),
                         selectInput('rightHome', 'Home or Away', choices = c('Home','Away'), selected = 'Away', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
                         selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
@@ -301,6 +333,32 @@ server <-function(input, output, session) {
                 align = "center", 
                 box(status = "primary", title = "Rink Layout", width = '100%',
                     plotlyOutput("icemap_Arena"))
+              )
+    )
+  })
+  output$shotByPlayer <- renderUI({
+    fluidPage(theme = shinytheme("slate"),
+              fluidRow(
+                align='center',
+                #collapsible box for main inputs
+                box(solidHeader = T, collapsible = T, width = '100%',
+                    title = "Filters", status = "primary", background = "blue",
+                    #input selections are inside div so we can place left and right inputs side by side
+                    div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: 0em;",
+                        selectInput('leftPlayer', 'Left Player', choices = player_choices, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
+                        selectInput('rightPlayer', 'Right Player', choices = player_choices, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
+                        selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL))
+                )
+              ),
+              fluidRow(
+                align = "center", 
+                box(status = "primary", title = "Rink Layout", width = '100%',
+                    plotlyOutput("icemap_player"))
               )
     )
   })
@@ -510,24 +568,24 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~coordinates.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
         ) %>%
         add_markers(
           data = df_right_shots,
           hoverinfo='skip',
-          x = ~r.x, y=~coordinates.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
         ) %>%
         add_markers(
           data = df_left_goals,
           hoverinfo='text',
           hovertext=paste(df_left_goals$result.secondaryType),
-          x = ~l.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+          x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
         ) %>%
         add_markers(
           data = df_right_goals,
           hoverinfo='text',
           hovertext=paste(df_right_goals$result.secondaryType),
-          x = ~r.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+          x = ~r.x, y=~r.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
           xaxis = list(range = c(-110,110)),
@@ -563,24 +621,24 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~coordinates.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
         ) %>%
         add_markers(
           data = df_right_shots,
           hoverinfo='skip',
-          x = ~r.x, y=~coordinates.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
         ) %>%
         add_markers(
           data = df_left_goals,
           hoverinfo='text',
           hovertext=paste(df_left_goals$result.secondaryType),
-          x = ~l.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+          x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
         ) %>%
         add_markers(
           data = df_right_goals,
           hoverinfo='text',
           hovertext=paste(df_right_goals$result.secondaryType),
-          x = ~r.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+          x = ~r.x, y=~r.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
           xaxis = list(range = c(-110,110)),
@@ -601,4 +659,57 @@ server <-function(input, output, session) {
           )
         )
     })
+  output$icemap_player <- renderPlotly({
+    df_left <- df_left_player()
+    df_right <- df_right_player()
+    df_left_shots <- df_left[result.eventTypeId == 'SHOT']
+    df_left_goals <- df_left[result.eventTypeId == 'GOAL']
+    df_right_shots <- df_right[result.eventTypeId == 'SHOT']
+    df_right_goals <- df_right[result.eventTypeId == 'GOAL']
+    df <- rbind(df_left, df_right)
+    #set the rink image and plot
+    txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
+    df %>% 
+      plot_ly()  %>% 
+      add_markers(
+        data = df_left_shots,
+        hoverinfo='skip',
+        x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+      ) %>%
+      add_markers(
+        data = df_right_shots,
+        hoverinfo='skip',
+        x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+      ) %>%
+      add_markers(
+        data = df_left_goals,
+        hoverinfo='text',
+        hovertext=paste(df_left_goals$result.secondaryType),
+        x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+      ) %>%
+      add_markers(
+        data = df_right_goals,
+        hoverinfo='text',
+        hovertext=paste(df_right_goals$result.secondaryType),
+        x = ~r.x, y=~r.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+      ) %>%
+      layout(
+        xaxis = list(range = c(-110,110)),
+        yaxis = list(range = c(-50,50)),
+        images= list(
+          source= paste('data:image/png;base64', txt, sep=','),
+          xref= "x",
+          yref= "y",
+          x = 0,
+          y = 0,
+          sizex = 240,
+          sizey = 100,
+          opacity = 0.8,
+          layer = "below",
+          xanchor = "center",
+          yanchor = "middle",
+          sizing = "stretch"
+        )
+      )
+  })
 }

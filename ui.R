@@ -10,7 +10,7 @@ library(dplyr)
 library(stringr)
 library(tidyverse)
 library(reshape2)
-load("./data/2019-11-26_nhl-cleaned-data.RData")
+load("./data/2019-12-07_nhl-cleaned-data.RData")
 
 header <- dashboardHeader(
   title = span("NHL ICE HOCKEY", 
@@ -24,7 +24,8 @@ sidebar <- dashboardSidebar(
       id = "tabs",
       menuItem('Shots Map',
        menuSubItem('Team', tabName = 'team_shots'),
-       menuSubItem('Arena', tabName = 'arena_shots')
+       menuSubItem('Arena', tabName = 'arena_shots'),
+       menuSubItem('Player', tabName = 'player_shots')
       ),
       menuItem('Season Statistics', tabName = 'season'),
       menuItem('Player Performance', tabName = 'player'),
@@ -38,6 +39,7 @@ body <- dashboardBody(
     tabItems(
       tabItem('team_shots', uiOutput('shotByTeam')),
       tabItem('arena_shots', uiOutput('shotByArena')),
+      tabItem('player_shots', uiOutput('shotByPlayer')),
       tabItem('season', uiOutput('statisticBySeason')),
       tabItem('player', uiOutput('performanceByPlayer')),
       tabItem('team', uiOutput('performanceByTeam'))
