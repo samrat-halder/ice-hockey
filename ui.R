@@ -3,6 +3,7 @@ library(plotly)
 library(shinythemes)
 library(shinyjs)
 library(DT)
+library(tidyr)
 load("./data/2019-11-26_nhl-cleaned-data.RData")
 
 header <- dashboardHeader(
