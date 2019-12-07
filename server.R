@@ -364,10 +364,14 @@ server <-function(input, output, session) {
         ) %>%
         add_markers(
           data = df_left_goals,
+          hoverinfo='text',
+          hovertext=paste(df_left_goals$result.secondaryType),
           x = ~l.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
         ) %>%
         add_markers(
           data = df_right_goals,
+          hoverinfo='text',
+          hovertext=paste(df_right_goals$result.secondaryType),
           x = ~r.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
@@ -413,10 +417,14 @@ server <-function(input, output, session) {
         ) %>%
         add_markers(
           data = df_left_goals,
+          hoverinfo='text',
+          hovertext=paste(df_left_goals$result.secondaryType),
           x = ~l.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
         ) %>%
         add_markers(
           data = df_right_goals,
+          hoverinfo='text',
+          hovertext=paste(df_right_goals$result.secondaryType),
           x = ~r.x, y=~coordinates.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
