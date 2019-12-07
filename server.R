@@ -103,6 +103,45 @@ server <-function(input, output, session) {
     return(vF_game_plays[team.id.for != arena_team_id() & (as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
                          & game.id %in% games_arena$game.id])
   }) 
+  output$performanceByTeam <- renderUI({
+    fluidPage(theme = shinytheme("slate"),
+              fluidRow(
+                align='center',
+                #collapsible box for main inputs
+                box(solidHeader = T, width = '100%',
+                    title = 'Compare upto 3 teams', status = "primary", background = "blue",
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('teamPerf1', 'Select Team 1', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('teamPerf2', 'Select Team 2', choices = team_choices, selected = 'Florida Panthers', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('teamPerf3', 'Select Team 3', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL))
+                    #div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                    #    selectInput('yearTeam', 'Year', choices = c(allYears,'All'), selected = '2018', multiple = FALSE,
+                    #                selectize = TRUE, width = NULL, size = NULL))
+                )
+              ),
+              fluidRow(
+                align='center',
+                box( plotlyOutput("trendPlot1"), status = "primary", title = "Total wins", width = 12, solidHeader = TRUE)
+              ),
+              fluidRow(
+                align='center',
+                box( plotlyOutput("trendPlot2"), status = "primary", title = "Title1", width = 12, solidHeader = TRUE)
+              ),
+              fluidRow(
+                align='center',
+                box( plotlyOutput("trendPlot3"), status = "primary", title = "Title1", width = 12, solidHeader = TRUE)
+              ),
+              fluidRow(
+                align='center',
+                box( plotlyOutput("trendPlot4"), status = "primary", title = "Title1", width = 12, solidHeader = TRUE)
+              )
+    )
+  })
   output$performanceByPlayer <- renderUI({
     tabsetPanel(type = 'tabs',
                 tabPanel("Summary",
@@ -138,35 +177,6 @@ server <-function(input, output, session) {
                                    #TODO: Add Plots for selected player
                          )
                 )
-    )
-  })
-  output$performanceByTeam <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
-              fluidRow(
-                align='center',
-                #collapsible box for main inputs
-                box(solidHeader = T, width = '100%',
-                    title = 'Compare upto 3 teams', status = "primary", background = "blue",
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('teamPerf1', 'Select Team 1', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('teamPerf2', 'Select Team 2', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('teamPerf3', 'Select Team 3', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                        selectInput('yearTeam', 'Year', choices = c(allYears,'All'), selected = '2018', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL))
-                )
-              ),
-              fluidRow(
-                align='center',
-                box( plotOutput("Plot1"), status = "primary", title = "Title1", width = 4, solidHeader = TRUE),
-                box( plotOutput("Plot2"), status = "primary", title = "Title1", width = 4, solidHeader = TRUE),
-                box( plotOutput("Plot3"), status = "primary", title = "Title2", width = 4, solidHeader = TRUE)
-              )
     )
   })
   output$statisticBySeason <- renderUI({
@@ -341,6 +351,48 @@ server <-function(input, output, session) {
     teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
     DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
+  })
+  output$trendPlot1 <- renderPlotly({
+    teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df$game.id <- str_sub(df$game.id, end=-7)
+    df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
+    df <- df[,c('game.id', "team.id", 'HoA', 'won')]
+    dfHome <- df[df$HoA == 'home',]
+    dfAway <- df[df$HoA == 'away',]
+    dfTotal <- df[,!(colnames(df) %in% c('HoA'))]
+    dfTotal <- aggregate(.~game.id+team.id, dfTotal, sum)
+    dfTotal <- dfTotal %>% spread(key = 'team.id', value = 'won')
+    dfTotalMelt <- melt(dfTotal, id.vars = 'game.id')
+    ggplot(data=dfTotalMelt, aes(x=game.id, y=value, fill=variable, size=0.25, width=0.4, alpha= 0.5)) +
+      geom_bar(stat="identity", position=position_dodge()) + ylab('') +
+      scale_fill_manual("legend", values = c("darkblue", "darkgreen", "darkred")) + xlab('Year')
+  })
+  output$trendPlot2 <- renderPlotly({
+    teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df$game.id <- str_sub(df$game.id, end=-7)
+    df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
+    
+  })
+  output$trendPlot3 <- renderPlotly({
+    teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df$game.id <- str_sub(df$game.id, end=-7)
+    df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
+    
+    
+  })
+  output$trendPlot4 <- renderPlotly({
+    teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df <- vF_game_teams_stats[team.id %in% teamIds]
+    df$game.id <- str_sub(df$game.id, end=-7)
+    df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
+    
   })
   output$teamGoals <- renderPlot({
     statYear <- selected_yearStat()

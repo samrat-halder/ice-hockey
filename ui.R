@@ -9,6 +9,7 @@ library(maps)
 library(dplyr)
 library(stringr)
 library(tidyverse)
+library(reshape2)
 load("./data/2019-11-26_nhl-cleaned-data.RData")
 
 header <- dashboardHeader(
