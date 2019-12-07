@@ -204,7 +204,7 @@ server <-function(input, output, session) {
                                fluidRow(
                                  align='center',
                                  box(solidHeader = T, width = '100%',
-                                     title = 'Arena (by Cities) Home Vs Away Trend', status = "primary", background = "blue"
+                                     title = 'Arena (by Cities) Home Vs Away Impact by Season', status = "primary", background = "blue"
                                  )
                                ),
                                fluidRow(
@@ -215,12 +215,13 @@ server <-function(input, output, session) {
                                fluidRow(
                                  align='center',
                                  box(solidHeader = T, width = '100%',
-                                     title = 'Team', status = "primary", background = "blue"
+                                     title = 'Team Home Vs Away Performance by Season', status = "primary", background = "blue"
                                  )
                                ),
                                fluidRow(
                                  align='center',
-                                 box( plotOutput("Plot5"), status = "primary", width = 12, solidHeader = TRUE)
+                                 box(plotOutput("teamGoals"), status = "primary", width = 6, solidHeader = TRUE, title = 'Goals'),
+                                 box(plotOutput("teamWins"), status = "primary", width = 6, solidHeader = TRUE, title = 'Wins')
                                )
                      )
             )
@@ -340,6 +341,48 @@ server <-function(input, output, session) {
     teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
     DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
+  })
+  output$teamGoals <- renderPlot({
+    statYear <- selected_yearStat()
+    if (statYear != 'All'){
+      dataStatYear <- vF_game_info[vF_game_info$season == statYear]
+    } else {
+      dataStatYear <- vF_game_info
+    }
+    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'home.goals')]
+    awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
+    colnames(homeTeam)[1] <- colnames(awayTeam)[1] <- 'team.id'
+    homeTeamGroupBy <- aggregate( .~team.id, homeTeam, sum)
+    awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
+    teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
+    teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
+    teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
+    teamStatGather <- teamStat %>% 
+                    gather(key = 'GoalType', value = 'Goals', home.goals, away.goals) %>%
+                    gather(key = 'WinType', value = 'Wins', home.win, away.win)
+    ggplot(teamStatGather, aes(Goals, fct_reorder2(long.name, GoalType == 'away.goals', Goals, .desc = FALSE), color = GoalType)) + 
+      geom_point() + ylab('')
+  })
+  output$teamWins <- renderPlot({
+    statYear <- selected_yearStat()
+    if (statYear != 'All'){
+      dataStatYear <- vF_game_info[vF_game_info$season == statYear]
+    } else {
+      dataStatYear <- vF_game_info
+    }
+    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'home.goals')]
+    awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
+    colnames(homeTeam)[1] <- colnames(awayTeam)[1] <- 'team.id'
+    homeTeamGroupBy <- aggregate( .~team.id, homeTeam, sum)
+    awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
+    teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
+    teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
+    teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
+    teamStatGather <- teamStat %>% 
+      gather(key = 'GoalType', value = 'Goals', home.goals, away.goals) %>%
+      gather(key = 'WinType', value = 'Wins', home.win, away.win)
+    ggplot(teamStatGather, aes(Wins, fct_reorder2(long.name, WinType == 'away.win', Wins, .desc = FALSE), color = WinType)) + 
+      geom_point() + ylab('')
   })
   output$arenaMapGoals <- renderPlot({
     statYear <- selected_yearStat()

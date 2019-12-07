@@ -8,6 +8,7 @@ library(ggplot2)
 library(maps) 
 library(dplyr)
 library(stringr)
+library(tidyverse)
 load("./data/2019-11-26_nhl-cleaned-data.RData")
 
 header <- dashboardHeader(
