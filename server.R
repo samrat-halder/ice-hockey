@@ -33,6 +33,9 @@ server <-function(input, output, session) {
   team_Perf3 <- reactive({
     return(input$teamPerf3)
   })
+  team_stat_type <- reactive({
+    return(input$statType)
+  })
   left_team_id <- reactive({
     return(vF_teams_DT[long.name == input$leftTeam]$team.id)
   })  
@@ -152,27 +155,27 @@ server <-function(input, output, session) {
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('teamPerf3', 'Select Team 3', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)), 
+                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                        selectInput('statType', 'Statistics Level', choices = c('Macro','Micro'), selected = 'Macro', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
-                    #div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                    #    selectInput('yearTeam', 'Year', choices = c(allYears,'All'), selected = '2018', multiple = FALSE,
-                    #                selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot1"), status = "primary", title = "Number of wins", width = 12, solidHeader = TRUE)
+                box( plotlyOutput("trendPlot1"), status = "primary",  width = 12, solidHeader = FALSE)
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot2"), status = "primary", title = "Number of goals", width = 12, solidHeader = TRUE)
+                box( plotlyOutput("trendPlot2"), status = "primary", width = 12, solidHeader = FALSE)
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot3"), status = "primary", title = "Number of shots", width = 12, solidHeader = TRUE)
+                box( plotlyOutput("trendPlot3"), status = "primary", width = 12, solidHeader = FALSE)
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot4"), status = "primary", title = "Title1", width = 12, solidHeader = TRUE)
+                box( plotlyOutput("trendPlot4"), status = "primary", width = 12, solidHeader = FALSE)
               )
     )
   })
@@ -417,33 +420,47 @@ server <-function(input, output, session) {
     df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
-    df <- df[,c('game.id', "team.id", 'HoA', 'won')]
-    #dfHome <- df[df$HoA == 'home',]
-    #dfAway <- df[df$HoA == 'away',]
-    #dfTotal <- df[,!(colnames(df) %in% c('HoA'))]
-    #dfTotal <- aggregate(.~game.id+team.id, dfTotal, sum)
-    #dfTotal <- dfTotal %>% spread(key = 'team.id', value = 'won')
-    #dfTotalMelt <- melt(dfTotal, id.vars = 'game.id')
-    #ggplot(data=dfTotalMelt, aes(x=game.id, y=value, fill=variable, size=0.25, width=0.4, alpha= 0.5)) +
-    #  geom_bar(stat="identity", position=position_dodge()) + ylab('') +
-    #  scale_fill_manual("legend", values = c("cyan1", "bisque4", "orchid1")) + xlab('Year')
-    ggplot() + 
-      geom_bar(data =df, aes(y = won, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
-      theme_bw() + 
-      facet_grid(~game.id) +
-      scale_fill_manual("legend", values = c("cyan1", "bisque4")) + xlab('') +ylab('')
+    if (team_stat_type() == 'Macro') {
+      df <- df[,c('game.id', "team.id", 'HoA', 'won')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = won, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Wins')
+    } else {
+      df <- df[,c('game.id', "team.id", 'HoA', 'blocked')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = blocked, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Blocked')
+    }
+    
   })
   output$trendPlot2 <- renderPlotly({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
     df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
-    df <- df[,c('game.id', "team.id", 'HoA', 'goals')]
-    ggplot() + 
-      geom_bar(data =df, aes(y = goals, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
-      theme_bw() + 
-      facet_grid(~game.id) +
-      scale_fill_manual("legend", values = c("cyan1", "bisque4")) + xlab('') +ylab('')
+    if (team_stat_type() == 'Macro') {
+      df <- df[,c('game.id', "team.id", 'HoA', 'goals')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = goals, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Goals')
+    } else {
+      df <- df[,c('game.id', "team.id", 'HoA', 'takeaways')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = takeaways, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Takeaways')
+    }
     
   })
   output$trendPlot3 <- renderPlotly({
@@ -451,21 +468,47 @@ server <-function(input, output, session) {
     df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
-    df <- df[,c('game.id', "team.id", 'HoA', 'shots')]
-    ggplot() + 
-      geom_bar(data =df, aes(y = shots, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
-      theme_bw() + 
-      facet_grid(~game.id) +
-      scale_fill_manual("legend", values = c("cyan1", "bisque4")) + xlab('') +ylab('')
-    
+    if (team_stat_type() == 'Macro'){
+      df <- df[,c('game.id', "team.id", 'HoA', 'shots')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = shots, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Shots')
+    } else {
+      df <- df[,c('game.id', "team.id", 'HoA', 'giveaways')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = giveaways, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Giveaways')
+    }
     
   })
   output$trendPlot4 <- renderPlotly({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
     df <- vF_game_teams_stats[team.id %in% teamIds]
-    df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
+    if (team_stat_type() == 'Macro') {
+      df <- df[,c('game.id', "team.id", 'HoA', 'pim')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = pim, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Penalty Infraction Minute')
+    } else {
+      df <- df[,c('game.id', "team.id", 'HoA', 'hits')]
+      ggplot() + 
+        geom_bar(data =df, aes(y = hits, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        theme_bw() + 
+        facet_grid(~game.id) +
+        scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+        xlab('') +ylab('') + ggtitle('Hits')
+    }
     
   })
   output$teamGoals <- renderPlot({
