@@ -415,19 +415,24 @@ server <-function(input, output, session) {
   output$trendPlot1 <- renderPlotly({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
     df <- vF_game_teams_stats[team.id %in% teamIds]
-    df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
     df <- df[,c('game.id', "team.id", 'HoA', 'won')]
-    dfHome <- df[df$HoA == 'home',]
-    dfAway <- df[df$HoA == 'away',]
-    dfTotal <- df[,!(colnames(df) %in% c('HoA'))]
-    dfTotal <- aggregate(.~game.id+team.id, dfTotal, sum)
-    dfTotal <- dfTotal %>% spread(key = 'team.id', value = 'won')
-    dfTotalMelt <- melt(dfTotal, id.vars = 'game.id')
-    ggplot(data=dfTotalMelt, aes(x=game.id, y=value, fill=variable, size=0.25, width=0.4, alpha= 0.5)) +
-      geom_bar(stat="identity", position=position_dodge()) + ylab('') +
-      scale_fill_manual("legend", values = c("cyan1", "bisque4", "orchid1")) + xlab('Year')
+    print (df)
+    #dfHome <- df[df$HoA == 'home',]
+    #dfAway <- df[df$HoA == 'away',]
+    #dfTotal <- df[,!(colnames(df) %in% c('HoA'))]
+    #dfTotal <- aggregate(.~game.id+team.id, dfTotal, sum)
+    #dfTotal <- dfTotal %>% spread(key = 'team.id', value = 'won')
+    #dfTotalMelt <- melt(dfTotal, id.vars = 'game.id')
+    #ggplot(data=dfTotalMelt, aes(x=game.id, y=value, fill=variable, size=0.25, width=0.4, alpha= 0.5)) +
+    #  geom_bar(stat="identity", position=position_dodge()) + ylab('') +
+    #  scale_fill_manual("legend", values = c("cyan1", "bisque4", "orchid1")) + xlab('Year')
+    ggplot() + 
+      geom_bar(data =df, aes(y = won, x = as.factor(team.id), fill = HoA, size=0.25, width=0.8, alpha= 0.5), stat = "identity", position = 'stack') + 
+      theme_bw() + 
+      facet_grid(~game.id) +
+      scale_fill_manual("legend", values = c("cyan1", "bisque4")) + xlab('') +ylab('Matches Won')
   })
   output$trendPlot2 <- renderPlotly({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
