@@ -425,7 +425,7 @@ server <-function(input, output, session) {
     dfTotalMelt <- melt(dfTotal, id.vars = 'game.id')
     ggplot(data=dfTotalMelt, aes(x=game.id, y=value, fill=variable, size=0.25, width=0.4, alpha= 0.5)) +
       geom_bar(stat="identity", position=position_dodge()) + ylab('') +
-      scale_fill_manual("legend", values = c("darkblue", "darkgreen", "darkred")) + xlab('Year')
+      scale_fill_manual("legend", values = c("cyan1", "bisque4", "orchid1")) + xlab('Year')
   })
   output$trendPlot2 <- renderPlotly({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
