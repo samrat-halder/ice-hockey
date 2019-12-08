@@ -1,0 +1,238 @@
+---
+title: "Home team advantage in the NHL"
+author: "Samrat Halder, Hariz Johnson, Jake Stamell"
+date: "12/6/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+## Project Overview
+
+### Background and research questions
+
+Home-team-advantage is a common phenomenon in sports. Intuitively, we expect a team to perform better in their hometown. They are used to that location, have their fans to support them, don’t need to travel to it, etc.
+
+But what does it really mean to have an advantage? Looking below the level of wins and losses, what happens to teams when they are at home and away? Does their style of play change? Are there some places that are harder to play at than others? Are there teams that perform better when away compared to others?
+
+For our project, we explored these questions for ice hockey games in the National Hockey League (NHL). In recent years, the NHL has started tracking where and when events (like shots and goals) happen during the game. This provides a new opportunity to explore the game differently. Not only can we examine high-level game information, but we can also look at play-level details like where events occur on the ice.
+
+This project consists of the following report, which condenses and summarizes our findings. The first section provides a high-level overview of our project, while the second walks through the details of our analysis. We have also developed an interactive shiny app to allow the reader to explore different views of the data, as we have only included a sample here. We encourage the reader to use this after reading through the report.
+
+All code used for the project is availabe on the github page: [TBU].
+
+### What you need to know about hockey to understand this
+
+If you are familiar with the sport, feel free to skip this section. For those unfamiliar with the sport, we provide a brief overview of the relevant information on hockey and the NHL to be able to understand this report. There are penalties…
+
+Ice hockey is a sport where each team has 5 players and 1 goalie. Teams play 3 periods, each taking 20 minutes. The team with the most goals at the end wins.
+
+The types of plays in hockey consist of goals, shots, missed shots,
+
+Offensive plays
+
+  * Goal: where one team scores
+  * Shot: where a team shoots the puck on goal
+  * Missed shot: where a team shoots the puck but misses the goal
+
+Defensive 
+
+  * Blocked shot: where a team shoots the puck, but the other team blocks it before it reaches the goal
+  * Takeaway: when a team takes the puck away from the other team
+  * Hit: when one player hits another (it's allowed and all players wear protective gear!)
+
+Other
+
+  * Penalty: where a foul is called on a team (following a penalty, that team plays with one less player for a short period of time)
+  * Giveaway: when a team loses the puck
+  * Faceoff: these events start a play and happen in 9 fixed locations on the ice (similar to a tip off in basketball)
+
+The NHL is the professional hockey league in the United States. It consists of 31 teams (30 before 2017) that each play 82 games per year. Each team plays half of their games at home and half at other teams’ arenas.
+
+### Data collection
+
+We collected our data directly from the NHL.com API, using the httr package to make requests and the jsonlite package to parse the raw json data. While there is no formal documentation for this API, there is an online community that has documented some of the available endpoints (add reference). From there, we sifted through the information returned by these calls to find the information we were looking for.
+
+We gathered game data for all regular season games for the seasons in 2014-2018. This data consists of general information about the games (6232 total games) such as which teams played, who won, how many shots, where it was, etc. Additionally, we collected play-level data which records the location, team, players, and more of each major event in the game. This includes events like goals, shots, penalties, etc. (see appendix B). This is the primary data set for our project, consisting of (~1.6M events)
+
+To recreate this dataset, visit our github for the project and use script [TBU]. The data itself is also directly available in the RData file [TBU].
+
+### High level findings
+
+In the NHL, ~55% of games are won by the home team, with significant variation among teams. Digging in to the play-level data, we see that this advantage exists for most types of plays. Not only do teams shoot and score (and thus win) more when they are the home team, they also are penalized less. Perhaps fans yelling at the referee does have some effect!
+
+While commonly held opinions say that the hardest rinks to play in are X, Y, and Z, we actually found that teams do worse at A and B. And the teams that do the best are...
+
+## Detailed report
+
+```{r}
+# Loading packages
+library(data.table)
+library(ggplot2)
+library(forcats)
+library(stringr)
+
+# Loading data
+load('../data/2019-12-07_nhl-cleaned-data.RData')
+
+# Setting up supporting function sfor plots
+plot_theme <- theme_minimal(12) +    
+  theme(axis.text.y = element_text(size = rel(1)),
+        axis.ticks.y = element_blank(),
+        # axis.title.x = element_text(size = rel(.75)),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(size = 0.5),
+        panel.grid.minor.x = element_blank())
+
+caption_source <- labs(caption="Note: data from regular season games\nSource: NHL.com API")
+
+mid_line <- geom_hline(yintercept=.5)
+```
+
+
+### How big of an effect is home-team-advantage in hockey?
+
+Overall, home teams have a significant advantage, winning ~55% of the time. This advantage has been consistent over the time period of this analysis.
+```{r}
+overall_win_perc_HoA_by_season <- vF_game_info[,.(h=sum(home.win),a=sum(away.win)), by = season
+                             ][,.(season,home=h/(h+a),away=a/(h+a))]
+
+ggplot(melt(overall_win_perc_HoA_by_season, id.vars='season', variable.name='HoA', value.name='win_perc')) +
+  geom_point(aes(x=season,y=win_perc,color=HoA)) +
+  mid_line +
+  labs(title = "NHL home vs away win-percentage (2014-18)"
+       ,x = "Season"
+       ,y = "Win percentage"
+       ,color = element_blank()) +
+  caption_source +
+  scale_y_continuous(limits = c(.4,.6), labels = scales::percent_format(1)) +
+  plot_theme
+```
+
+Looking across teams, we see a significant variation in this performance. For example, the Tampa Bay Lightning win almost 70% of their home games and 55% of their away ones. In general, teams that perform better at home also perform better on the road.
+
+```{r}
+team_win_perc_HoA <- vF_game_teams_stats[,.(win_perc=sum(won)/.N),by=.(team.id,HoA)]
+
+ggplot(merge(team_win_perc_HoA, vF_teams_DT[,.(team.id,long.name)], by='team.id')) +
+  geom_point(aes(x=reorder(long.name,win_perc*(HoA=='home')),y=win_perc,color=HoA)) +
+  mid_line +
+  labs(title = "Home vs away win-percentage by team (2014-18)"
+       ,x=element_blank()
+       ,y="Win percentage"
+       ,color=element_blank()) +
+  caption_source +
+  scale_y_continuous(limits = c(.3,.7), labels = scales::percent_format(1)) +
+  plot_theme +
+  theme(axis.text.y = element_text(size=rel(.75))) +
+  coord_flip()
+```
+
+Clearly we need to account for this variation in team-strength. As we dig below the level of wins and losses, we will also explore metrics that adjust for team strength.
+
+### What does home team advantage look like for different types of events?
+
+A simple view of what percentage of plays are recorded for the home team highlights how the home team plays better. Home teams shoot and score more and even win more faceoffs. Interestingly, fewer penalties are called on the home team (in this case <50% is better for the home team). Perhaps referees are less inclined to call a penalty when the entire stadium is yelling at them for it.
+
+Interestingly, there are a couple areas that favor the away team. Hometeams giveaway the puck much more than away teams and block fewer shots. Although perhaps the latter is driven by the fact that away teams shoot less.
+
+```{r}
+event_home_perc <- dcast(vF_game_plays[,.N,by=.(HoA,result.eventTypeId)], result.eventTypeId ~ HoA)[,.(result.eventTypeId,home_perc = H/(A+H))]
+
+ggplot(event_home_perc) +
+  geom_col(aes(x=reorder(str_to_sentence(result.eventTypeId),home_perc), y=home_perc)) +
+  mid_line +
+  labs(title = "Percentage of plays for the home team (2014-18)"
+       ,x=element_blank()
+       ,y="Home plays as a % of total") +
+  caption_source +
+  scale_y_continuous(labels = scales::percent_format(1)) +
+  plot_theme +
+  coord_flip()
+
+```
+
+But what does this look like when accounting for team strength? The boxplots below show how teams perform at home compared to away for all play types. This view provides a bit more nuance to the story. Some play types (like giveaways) have a large amount of variability as compared to goals, where all teams clearly perform better at home.
+
+```{r}
+plays_summary <- vF_game_plays[,.(rate_per_game = .N / length(unique(game.id))),by=.(team.id.for, HoA,result.eventTypeId)]
+
+plays_home_delta <- dcast(plays_summary, team.id.for + result.eventTypeId ~ HoA)[,perc_delta := (H-A)/A]
+
+ggplot(plays_home_delta) +
+  geom_boxplot(aes(x=reorder(str_to_sentence(result.eventTypeId),perc_delta,median), y=perc_delta)) +
+  geom_hline(yintercept=0) +
+  labs(title = "Difference in performance home vs. away (2014-18)"
+       ,subtitle = "Each observation represents one team for that type of play"
+       ,x=element_blank()
+       ,y="Home performance relative to away performance") +
+  caption_source +
+  scale_y_continuous(limits=c(-.2,.2), labels = scales::percent_format(1)) +
+  plot_theme +
+  coord_flip()
+
+```
+
+### What arenas are the hardest to play at?
+
+To understand this question, we look at each arena and how other teams perform when they play there. We then compare this performance to their average away performance. The three hardest places to play are Anaheim, Washington, and Montreal. Interstingly, in a recent poll of NHL players, players rated Nashville, Winnipeg, and Pittsburgh as the toughest places to play. On the other side of the coinn, Ottawa and Edmonton are the easiest places to play. This is not surprising given that over this time period these teams did not perform well in general
+
+```{r}
+play_sel <- 'GOAL'
+avg_away_performance <- plays_summary[HoA=='A' & result.eventTypeId==play_sel, .(team.id.for, avg_rate = rate_per_game)]
+
+away_performance_by_arena <- vF_game_plays[HoA=='A' & result.eventTypeId==play_sel
+                                           ,.(rate_per_game = .N / length(unique(game.id))),by=.(team.id.for, team.id.against)][order(team.id.for,team.id.against)]
+
+away_perf_comp <- merge(away_performance_by_arena, avg_away_performance)[, delta := rate_per_game/avg_rate-1]
+
+away_perf_by_city <- merge(away_perf_comp[,mean(delta),by=team.id.against], vF_teams_DT[,.(team.id,venue.city)], by.x='team.id.against', by.y='team.id')
+
+ggplot(away_perf_by_city) +
+  geom_point(aes(x=reorder(venue.city,V1),y=V1)) +
+  geom_hline(yintercept=0) +
+  labs(title = "Away team performance by city (2014-18)"
+       ,subtitle = paste0("Perfomance measured using ",str_to_lower(play_sel),"s")
+       ,x=element_blank()
+       ,y="Performance relative to avg away performance") +
+  caption_source +
+  # scale_y_continuous(limits = c(.3,.7), labels = scales::percent_format(1)) +
+  plot_theme +
+  theme(axis.text.y = element_text(size=rel(.75))) +
+  coord_flip()
+```
+
+### Case study: 
+
+### What teams out-perform when on the road?
+
+Earlier, we looked at win rates when they are at home vs. away. We can adjust this view to account for team strength. Here, we see that the Carolina Hurricanes, New Jersey Devils, and San Jose Sharks perform the best when away. This chart is markedly different from overall win percentage over this time period.
+
+```{r}
+play_sel <- 'GOAL'
+
+plays_away_delta <- dcast(plays_summary, team.id.for + result.eventTypeId ~ HoA)[,perc_delta := (A-H)/H]
+
+team_away_perf <- merge(plays_away_delta,vF_teams_DT[,.(team.id,long.name)], by.x='team.id.for', by.y='team.id')
+
+ggplot(team_away_perf[result.eventTypeId == play_sel]) +
+  geom_point(aes(x=reorder(long.name,perc_delta),y=perc_delta)) +
+  geom_hline(yintercept=0) +
+  labs(title = "Away performance relative to home performance (2014-18)"
+       ,subtitle = paste0("Perfomance measured using ",str_to_lower(play_sel),"s")
+       ,x=element_blank()
+       ,y="Away performance as a % of home performance") +
+  caption_source +
+  scale_y_continuous(labels = scales::percent_format(1)) +
+  plot_theme +
+  theme(axis.text.y = element_text(size=rel(.75))) +
+  coord_flip()
+
+```
+
+
+### Case study: 
