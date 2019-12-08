@@ -6,8 +6,10 @@ server <-function(input, output, session) {
   vF_game_plays$game_and_event_id <- paste(vF_game_plays$game.id,vF_game_plays$about.eventIdx,sep='')
   vF_game_plays_players$game_and_event_id <- paste(vF_game_plays_players$game.id,vF_game_plays_players$eventIdx,sep='')
   
-  player_choices <- unique(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$fullName)
-  player_choices <- player_choices[order(player_choices)]
+  player_choices <- reactive({
+    player_choices <- unique(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season == input$year]$player.id]$fullName)
+    return(player_choices[order(player_choices)])
+  }) 
   #player_choices <- unique(paste(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$firstName, 
   #                               vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$lastName, 
   #                               sep=' '))
@@ -345,10 +347,10 @@ server <-function(input, output, session) {
                     title = "Filters", status = "primary", background = "blue",
                     #input selections are inside div so we can place left and right inputs side by side
                     div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: 0em;",
-                        selectInput('leftPlayer', 'Left Player', choices = player_choices, multiple = FALSE,
+                        selectInput('leftPlayer', 'Left Player', choices = player_choices(), multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
-                        selectInput('rightPlayer', 'Right Player', choices = player_choices, multiple = FALSE,
+                        selectInput('rightPlayer', 'Right Player', choices = player_choices(), multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
                         selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
@@ -674,24 +676,24 @@ server <-function(input, output, session) {
       add_markers(
         data = df_left_shots,
         hoverinfo='skip',
-        x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+        x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = min(20/nrow(df_left_shots),0.3))
       ) %>%
       add_markers(
         data = df_right_shots,
         hoverinfo='skip',
-        x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+        x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = min(20/nrow(df_right_shots),0.3))
       ) %>%
       add_markers(
         data = df_left_goals,
         hoverinfo='text',
         hovertext=paste(df_left_goals$result.secondaryType),
-        x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+        x = ~l.x, y=~l.y, marker = list(size = 4, color = 'black', opacity = 1)
       ) %>%
       add_markers(
         data = df_right_goals,
         hoverinfo='text',
         hovertext=paste(df_right_goals$result.secondaryType),
-        x = ~r.x, y=~r.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+        x = ~r.x, y=~r.y, marker = list(size = 4, color = 'black', opacity =1)
       ) %>%
       layout(
         xaxis = list(range = c(-110,110)),
