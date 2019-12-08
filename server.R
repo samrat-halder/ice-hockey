@@ -517,14 +517,15 @@ server <-function(input, output, session) {
       df <- filter(df,playerType == "Blocker")
     }else if (input$playerEvent == "Assists") {
       df <- filter(df,playerType == "Assist")
+    }
     df <- df[,c('player.id', 'year', 'n')]
     ggplot() + 
-      geom_bar(data =df, aes(y = n, x = as.factor(player.id), size=0.25, width=0.6, alpha= 0.5), stat = "identity") +
+      geom_bar(data =df, aes(y = n, x = as.factor(player.id),fill=player.id, size=0.25, width=0.6, alpha= 0.5), stat = "identity") +
       theme_bw() + 
       facet_grid(~year) +
-      scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+      #scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
       xlab('') +ylab('')
-    }
+    
     
   })
   output$teamGoals <- renderPlot({
