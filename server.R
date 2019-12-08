@@ -10,7 +10,7 @@ server <-function(input, output, session) {
     player_choices <- unique(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season == input$year]$player.id]$fullName)
     return(player_choices[order(player_choices)])
   }) 
-  #player_choices <- unique(paste(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$firstName, 
+  player_choices_performance <- unique(paste(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$fullName)) 
   #                               vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$lastName, 
   #                               sep=' '))
  
@@ -146,7 +146,7 @@ server <-function(input, output, session) {
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, width = '100%',
-                    title = 'Compare upto 3 teams', status = "primary", background = "blue",
+                    title = 'Compare up to 3 teams', status = "primary", background = "blue",
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('teamPerf1', 'Select Team 1', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
@@ -180,40 +180,30 @@ server <-function(input, output, session) {
     )
   })
   output$performanceByPlayer <- renderUI({
-    tabsetPanel(type = 'tabs',
-                tabPanel("Summary",
-                         fluidPage(theme = shinytheme("slate"),
-                                   fluidRow(
-                                     align='center',
-                                     #collapsible box for main inputs
-                                     box(solidHeader = T, width = '100%',
-                                         title = 'Arena', status = "primary", background = "blue",
-                                         div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                                             selectInput('yearPlayer', 'By Season', choices = c(allYears,'All'), selected = '2018', multiple = FALSE,
-                                                         selectize = TRUE, width = NULL, size = NULL))
-                                     )
-                                   ),
-                                   fluidRow(
-                                     align = "center",
-                                     DT::dataTableOutput("table_statistic_player")
-                                   )
-                         )
-                ),
-                tabPanel("Visualization",
-                         fluidPage(theme = shinytheme("slate"),
-                                   fluidRow(
-                                     align='center',
-                                     #collapsible box for main inputs
-                                     box(solidHeader = T, width = '100%',
-                                         title = 'Player', status = "primary", background = "blue",
-                                         div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                                             selectInput('playerStat', 'Select Player', choices = player_choices, selected = '', multiple = FALSE,
-                                                         selectize = TRUE, width = NULL, size = NULL))
-                                     )
-                                   )
-                                   #TODO: Add Plots for selected player
-                         )
+    fluidPage(theme = shinytheme("slate"),
+              fluidRow(
+                align='center',
+                #collapsible box for main inputs
+                box(solidHeader = T, width = '100%',
+                    title = 'Compare up to 3 players', status = "primary", background = "blue",
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf1', 'Select Team 1', choices = player_choices_performance, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf2', 'Select Team 2', choices = player_choices_performance, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf3', 'Select Team 3', choices = player_choices_performance, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)), 
+                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                        selectInput('playerEvent', 'Statistic to Compare', choices = c('Shots','Goals','Assists','Hits','Blocked Shots'), selected = 'Shots', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL))
                 )
+              ),
+              fluidRow(
+                align='center',
+                box( plotlyOutput("playerTrendPlot"), status = "primary",  width = 12, solidHeader = FALSE)
+              )
     )
   })
   output$statisticBySeason <- renderUI({
@@ -508,6 +498,32 @@ server <-function(input, output, session) {
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
         xlab('') +ylab('') + ggtitle('Hits')
+    }
+    
+  })
+  output$playerTrendPlot <- renderPlotly({
+    playerIds <- vF_player_info[fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)]$player.id
+    df <- vF_game_plays_players[player.id %in% playerIds]
+    df$year <- substr(df$game.id,1,4)
+    df <- as.data.frame(df %>% group_by(player.id, year, playerType) %>% tally())
+    
+    if (input$playerEvent == "Goals") {
+      df <- filter(df,playerType == "Scorer")
+    }else if (input$playerEvent == "Shots") {
+      df <- filter(df,playerType == "Shooter")
+    }else if (input$playerEvent == "Hits") {
+      df <- filter(df,playerType == "Hitter")
+    }else if (input$playerEvent == "Blocked Shots") {
+      df <- filter(df,playerType == "Blocker")
+    }else if (input$playerEvent == "Assists") {
+      df <- filter(df,playerType == "Assist")
+    df <- df[,c('player.id', 'year', 'n')]
+    ggplot() + 
+      geom_bar(data =df, aes(y = n, x = as.factor(player.id), size=0.25, width=0.6, alpha= 0.5), stat = "identity") +
+      theme_bw() + 
+      facet_grid(~year) +
+      scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
+      xlab('') +ylab('')
     }
     
   })

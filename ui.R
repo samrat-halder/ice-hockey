@@ -11,6 +11,8 @@ library(stringr)
 library(tidyverse)
 library(reshape2)
 library(ggrepel)
+library(plyr)
+library(tableHTML)
 load("./data/2019-12-07_nhl-cleaned-data.RData")
 
 header <- dashboardHeader(
