@@ -206,6 +206,19 @@ ggplot(away_perf_by_city) +
   coord_flip()
 ```
 
+Paragraph on arena visualizations (to be cleaned up and actual plots to be attached when finalized)
+
+These are all pretty similar. The home team has a denser region of shots and goals right in front of goal.
+
+Anaheim - Very dense crescent shape in front of goal for Ducks
+Washington - Denser in front of goal for Capitals
+Montreal -
+Nashville - Area of danger slightly smaller but denser with goals for Predators
+Winnipeg - Slightly denser for Jets but not by much
+Pittsburgh - Penguins map is very dense in front of goal compared to visitors
+
+The density of the home danger area is less pronounced for Edmonton but not for Ottawa (Ottawa supposedly the easiest to play away). Ottawa has a denser area in front of goal than their visitors.
+
 ### Case study: 
 
 ### What teams out-perform when on the road?
@@ -233,6 +246,23 @@ ggplot(team_away_perf[result.eventTypeId == play_sel]) +
   coord_flip()
 
 ```
+
+Paragraph on team home v away visualizations (to be cleaned up and actual plots to be attached when finalized)
+
+Teams that perform relatively well away
+- Carolina Hurricanes: When playing away their shotmap is a bit more compact but shots close to goal less dense. Overall not too much of a difference as expected
+- New Jersey Devils: Home map is more compact with a lot of shots coming from the left side. 
+- San Jose Sharks: Home map has a good amount of goals coming from the left.
+
+Teams that perform relatively worse away
+- Pittsburgh Penguins: Very dense around the goal when playing at home, much more spread out when playing away
+- Calgary Flames: Again pretty dense around goal when playing at home but patterns arent as clear
+- Winnipeg Jets: Pattern isnt too clear
+
+Teams that have interesting patterns
+- Philadelphia Flyers: Home plot shows shots clustered just past the blue line(dont know what its called) and halfway between that blue line and goal. Suggests they have a structured way of playing at home but not away
+- Tampa Bay Lightning: Home plot is very dense and compact. Still strong when playing away but not to the same extent
+- Boston Bruins: Home plot shows very dense number of shots from far out to either side, not so when playing away
 
 
 ### Case study: 
