@@ -5,8 +5,7 @@
 
 #### User inputs ####
 
-# setwd('./data')
-output_file_name <- paste0(Sys.Date(),"_nhl-cleaned-data.RData")
+setwd('./data')
 seasons_to_pull_year <- 2014:2018
 
 #### Loading packages ####
@@ -343,6 +342,8 @@ no_play_data <- data.table(game.id=names(no_play_data_l)
 col_sel <- c('game.id','about.period','result.eventTypeId','result.secondaryType','result.penaltySeverity','result.strength.code','about.eventIdx','about.periodType','about.periodTime','about.dateTime','about.goals.away','about.goals.home','coordinates.x','coordinates.y','team.id.for','team.id.against','HoA','s.x','s.y','r.x','r.y','l.x','l.y')
 vF_game_plays <- merge(game_plays,vF_play_types[,c(1,3)],by.x='result.eventTypeId',by.y='play.id')[important==1,..col_sel]
 vF_game_plays <- type_convert(vF_game_plays,col_types = cols(about.periodTime=col_time("%M:%S")))
+vF_game_plays[HoA=="A", `:=` (p.x=-s.x, p.y=-s.y)]
+vF_game_plays[HoA=="H", `:=` (p.x=s.x, p.y=s.y)]
 
 vF_game_plays_players <- game_plays_players[,.(game.id,eventIdx,playerType,player.id=str_conv(player.id,'UTF8'))]
 
@@ -411,4 +412,7 @@ rm(list=sel)
 rm(sel)
 
 # Saving impage
-save.image(output_file_name)
+save.image(paste0(Sys.Date(),"_nhl-cleaned-data.RData"))
+
+load("2019-12-07_nhl-cleaned-data.RData")
+save.image("2019-12-07_nhl-cleaned-data.RData")
