@@ -1,7 +1,7 @@
 server <-function(input, output, session) {
   allYears <- c('2018','2017','2016','2015','2014')
   team_choices <- unique(vF_teams_DT$long.name)
-  arena_choices <- unique(vF_teams_DT$venue.name)
+  arena_choices <- unique(vF_teams_DT$venue.city)
   vF_player_info$fullName <- paste(vF_player_info$firstName,vF_player_info$lastName,sep=' ')
   vF_game_plays$game_and_event_id <- paste(vF_game_plays$game.id,vF_game_plays$about.eventIdx,sep='')
   vF_game_plays_players$game_and_event_id <- paste(vF_game_plays_players$game.id,vF_game_plays_players$eventIdx,sep='')
@@ -43,10 +43,13 @@ server <-function(input, output, session) {
     return(vF_teams_DT[long.name == input$rightTeam]$team.id)
   }) 
   arena_team_id <- reactive({
-    return(vF_teams_DT[venue.name == input$arena]$team.id)
+    return(vF_teams_DT[venue.city == input$arena]$team.id)
   })
   arena_team <- reactive({
-    return(vF_teams_DT[venue.name == input$arena]$long.name)
+    return(vF_teams_DT[venue.city == input$arena]$long.name)
+  })
+  arena_name <- reactive({
+    return(vF_teams_DT[venue.city == input$arena]$venue.name)
   })
   left_player_id <- reactive({
     return(vF_player_info[fullName == input$leftPlayer]$player.id)
@@ -106,7 +109,7 @@ server <-function(input, output, session) {
     upper_lim <- paste0(as.character(upper_lim),'000000')
     lower_lim <- as.numeric(year) -1
     lower_lim <- paste0( as.character(lower_lim),'999999')
-    games_arena <- vF_game_info[name == input$arena]
+    games_arena <- vF_game_info[name == arena_name()]
     return(vF_game_plays[team.id.for == arena_team_id() & (as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
                          & game.id %in% games_arena$game.id])
   }) 
@@ -116,7 +119,7 @@ server <-function(input, output, session) {
     upper_lim <- paste0(as.character(upper_lim),'000000')
     lower_lim <- as.numeric(year) -1
     lower_lim <- paste0( as.character(lower_lim),'999999')
-    games_arena <- vF_game_info[name == input$arena]
+    games_arena <- vF_game_info[name == arena_name()]
     return(vF_game_plays[team.id.for != arena_team_id() & (as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
                          & game.id %in% games_arena$game.id])
   }) 
@@ -295,7 +298,7 @@ server <-function(input, output, session) {
     )
   })
   output$arenaText <- renderText({
-    paste0("This plot shows the shotmap of ", arena_team(),
+    paste0("This is the shotmap of ", arena_team(),
            " playing at home on the left and teams visiting ", input$arena, " on the right.")
   })
   output$shotByArena <- renderUI({
@@ -318,7 +321,7 @@ server <-function(input, output, session) {
               fluidRow(
                 tags$style(make_css(list('.box', 
                                          c('font-size', 'font-family', 'color'), 
-                                         c('16px', 'arial', 'black')))),
+                                         c('15px', 'arial', 'black')))),
                 box(
                   width = '100%',
                   textOutput("arenaText")
