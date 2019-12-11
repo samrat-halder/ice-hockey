@@ -205,7 +205,7 @@ server <-function(input, output, session) {
               fluidRow(
                 align='center',
                 box(solidHeader = T, width = '100%',
-                    title = 'Compare 3 players', status = "primary",
+                    title = 'Compare 2 players', status = "primary",
                     div(style="display: vertical-align:top; width: 11%; margin-top: 0em;",
                         selectInput('playerCat', 'Select a Catogory', choices = player_type_choices, selected = 'Defence', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
@@ -232,10 +232,16 @@ server <-function(input, output, session) {
                         align='center',
                         #collapsible box for main inputs
                         box(solidHeader = T, width = '100%',
-                            title = 'Arena', status = "primary",
+                            title = 'Summary of Matches', status = "primary",
                             div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
                                 selectInput('yearStat', 'By Season', choices = c(allYears, 'All'), selected = '2018', multiple = FALSE,
                                             selectize = TRUE, width = NULL, size = NULL))
+                        )
+                      ),
+                      fluidRow(
+                        align='center',
+                        box(solidHeader = F, width = '100%',
+                            title = 'Arena', status = "primary"
                         )
                       ),
                       fluidRow(
@@ -535,7 +541,7 @@ server <-function(input, output, session) {
       df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
       df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = giveaways, x = as.factor(team.id)), fill = HoA, size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = giveaways, x = as.factor(team.id), fill = HoA),  size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
