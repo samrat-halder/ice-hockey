@@ -779,7 +779,9 @@ server <-function(input, output, session) {
         layout(
           xaxis = list(range = c(-110,110), title = 'x'),
           yaxis = list(range = c(-50,50), title = 'y'),
-          legend = list(orientation = "h", 
+          legend = list(
+            orientation = "h", 
+                        y = 1.1,
                         xanchor = "center",
                         x = 0.5),
           images= list(
@@ -835,9 +837,11 @@ server <-function(input, output, session) {
         layout(
           xaxis = list(range = c(-110,110), title = 'x'),
           yaxis = list(range = c(-50,50), title = 'y'),
-          legend = list(orientation = "h", 
-                        xanchor = "center",
-                        x = 0.5),
+          legend = list(
+            orientation = "h", 
+            y = 1.1,
+            xanchor = "center",
+            x = 0.5),
           images= list(
             source= paste('data:image/png;base64', txt, sep=','),
             xref= "x",
@@ -869,12 +873,12 @@ server <-function(input, output, session) {
       add_markers(
         data = df_left_shots,
         hoverinfo='skip',
-        x = ~l.x, y=~l.y, marker = list(size = 15, color = 'blue', opacity = min(20/nrow(df_left_shots),0.3)), name = "Shotmap of left player"
+        x = ~l.x, y=~l.y, marker = list(size = 15, color = 'blue', opacity = min(20/nrow(df_left_shots),0.3)), name = paste("Shotmap of",input$leftPlayer)
       ) %>%
       add_markers(
         data = df_right_shots,
         hoverinfo='skip',
-        x = ~r.x, y=~r.y, marker = list(size = 15, color = 'red', opacity = min(20/nrow(df_right_shots),0.3)), name = "Shotmap of right player"
+        x = ~r.x, y=~r.y, marker = list(size = 15, color = 'red', opacity = min(20/nrow(df_right_shots),0.3)), name = paste("Shotmap of",input$rightPlayer)
       ) %>%
       add_markers(
         data = df_left_goals,
@@ -891,9 +895,11 @@ server <-function(input, output, session) {
       layout(
         xaxis = list(range = c(-110,110),title='x'),
         yaxis = list(range = c(-50,50),title='y'),
-        legend = list(orientation = "h", 
-                               xanchor = "center",
-                               x = 0.5),
+        legend = list(
+          orientation = "h", 
+          y = 1.1,
+          xanchor = "center",
+          x = 0.5),
         images= list(
           source= paste('data:image/png;base64', txt, sep=','),
           xref= "x",
