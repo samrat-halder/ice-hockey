@@ -4,21 +4,27 @@ server <-function(input, output, session) {
   team_choices <- team_choices[order(team_choices)]
   arena_choices <- unique(vF_teams_DT$venue.city)
   arena_choices <- arena_choices[order(arena_choices)]
+  player_type_choices <- c('Offence', 'Defence','Goalie')
   vF_player_info$fullName <- paste(vF_player_info$firstName,vF_player_info$lastName,sep=' ')
   vF_game_plays$game_and_event_id <- paste(vF_game_plays$game.id,vF_game_plays$about.eventIdx,sep='')
   vF_game_plays_players$game_and_event_id <- paste(vF_game_plays_players$game.id,vF_game_plays_players$eventIdx,sep='')
-  
   player_choices <- reactive({
     player_choices <- unique(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season == input$year]$player.id]$fullName)
     return(player_choices[order(player_choices)])
   }) 
-  player_choices_performance <- unique(paste(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$fullName)) 
-  #                               vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season %in% allYears]$player.id]$lastName, 
-  #                               sep=' '))
- 
   image_file <- "full-rink.png"
+  
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
+  })
+  observe({
+    updateSelectInput(session, inputId = "playerPerf1", choices = player_choices_perf())
+  })
+  observe({
+    updateSelectInput(session, inputId = "playerPerf2", choices = player_choices_perf())
+  })
+  observe({
+    updateSelectInput(session, inputId = "playerPerf3", choices = player_choices_perf())
   })
   observeEvent(input$leftTeamArena,{
     updateSelectInput(session,inputId='leftTeam', selected = input$leftTeamArena)
@@ -67,6 +73,19 @@ server <-function(input, output, session) {
   })
   selected_yearPlayer <- reactive({
     return(input$yearPlayer)
+  })
+  player_choices_perf <- reactive({
+    if (req(input$playerCat) == 'Offence'){
+      playerIds <- vF_player_info[primaryPosition.code %in% c('R','L','C')]$player.id 
+    } else if (req(input$playerCat) == 'Defence') {
+      playerIds <- vF_player_info[primaryPosition.code %in% c('D')]$player.id 
+    } else if (req(input$playerCat) == 'Goalie') {
+      playerIds <- vF_player_info[primaryPosition.code %in% c('G')]$player.id 
+    } else {
+      playerIds <- vF_player_info[primaryPosition.code %in% c('D')]$player.id 
+    }
+    return(sort(unique(paste(vF_player_info[vF_player_info$player.id %in% playerIds]$firstName, 
+                              vF_player_info[vF_player_info$player.id %in% playerIds]$lastName, sep=' '))))
   })
   leftHome <- reactive({
     return(input$leftHome)
@@ -133,13 +152,39 @@ server <-function(input, output, session) {
                            & game_and_event_id %in% games_player$game_and_event_id]
     return(merge(plays,games_player,by="game_and_event_id",all.x=TRUE))
   }) 
+  output$performanceByPlayer <- renderUI({
+    fluidPage(theme = shinytheme("slate"),
+              fluidRow(
+                align='center',
+                box(solidHeader = T, width = '100%',
+                    title = 'Compare 3 players', status = "primary", background = "blue",
+                    div(style="display: vertical-align:top; width: 11%; margin-top: 0em;",
+                        selectInput('playerCat', 'Select a Catogory', choices = player_type_choices, selected = 'Defence', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf1', 'Select Player 1', choices = NULL, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf2', 'Select Player 2', choices = NULL, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf3', 'Select Player 3', choices = NULL, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL))
+                )
+              ),
+              fluidRow(
+                align='center',
+                box( plotlyOutput("playerTrendPlot"), status = "primary",  width = 12, solidHeader = FALSE)
+              )
+    )
+  })
   output$performanceByTeam <- renderUI({
     fluidPage(theme = shinytheme("slate"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, width = '100%',
-                    title = 'Compare up to 3 teams', status = "primary", background = "blue",
+                    title = 'Compare 3 teams', status = "primary", background = "blue",
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('teamPerf1', 'Select Team 1', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
@@ -169,33 +214,6 @@ server <-function(input, output, session) {
               fluidRow(
                 align='center',
                 box( plotlyOutput("trendPlot4"), status = "primary", width = 12, solidHeader = FALSE)
-              )
-    )
-  })
-  output$performanceByPlayer <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
-              fluidRow(
-                align='center',
-                #collapsible box for main inputs
-                box(solidHeader = T, width = '100%',
-                    title = 'Compare up to 3 players', status = "primary", background = "blue",
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('playerPerf1', 'Select Team 1', choices = player_choices_performance, multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('playerPerf2', 'Select Team 2', choices = player_choices_performance, multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('playerPerf3', 'Select Team 3', choices = player_choices_performance, multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)), 
-                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                        selectInput('playerEvent', 'Statistic to Compare', choices = c('Shots','Goals','Assists','Hits','Blocked Shots'), selected = 'Shots', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL))
-                )
-              ),
-              fluidRow(
-                align='center',
-                box( plotlyOutput("playerTrendPlot"), status = "primary",  width = 12, solidHeader = FALSE)
               )
     )
   })
@@ -502,29 +520,16 @@ server <-function(input, output, session) {
     
   })
   output$playerTrendPlot <- renderPlotly({
-    playerIds <- vF_player_info[fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)]$player.id
+    if (selected_playerCat() == 'Offence'){
+      playerIds <- vF_player_info[(fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)) & (primaryPosition.code %in% c('R','L','C'))]$player.id 
+    } else if (selected_playerCat() == 'Defence') {
+      playerIds <- vF_player_info[(fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)) & (primaryPosition.code == 'D')]$player.id 
+    } else if (selected_playerCat() == 'Goalie') {
+      playerIds <- vF_player_info[(fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)) & (primaryPosition.code == 'G')]$player.id 
+    }
     df <- vF_game_plays_players[player.id %in% playerIds]
     df$year <- substr(df$game.id,1,4)
     df <- as.data.frame(df %>% group_by(player.id, year, playerType) %>% tally())
-    
-    if (input$playerEvent == "Goals") {
-      df <- filter(df,playerType == "Scorer")
-    }else if (input$playerEvent == "Shots") {
-      df <- filter(df,playerType == "Shooter")
-    }else if (input$playerEvent == "Hits") {
-      df <- filter(df,playerType == "Hitter")
-    }else if (input$playerEvent == "Blocked Shots") {
-      df <- filter(df,playerType == "Blocker")
-    }else if (input$playerEvent == "Assists") {
-      df <- filter(df,playerType == "Assist")
-    }
-    df <- df[,c('player.id', 'year', 'n')]
-    ggplot() + 
-      geom_bar(data =df, aes(y = n, x = as.factor(player.id),fill=player.id, size=0.25, width=0.6, alpha= 0.5), stat = "identity") +
-      theme_bw() + 
-      facet_grid(~year) +
-      #scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-      xlab('') +ylab('')
     
     
   })
