@@ -267,6 +267,10 @@ server <-function(input, output, session) {
             )
       )
   })
+  output$teamText <- renderText({
+    paste0("This is the shotmap of ", input$leftTeam,
+           " on the left and ",input$rightTeam, " on the right.")
+  })
   output$shotByTeam <- renderUI({
     fluidPage(theme = shinytheme("slate"),
               fluidRow(
@@ -288,6 +292,15 @@ server <-function(input, output, session) {
                     div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
                         selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
+                )
+              ),
+              fluidRow(
+                tags$style(make_css(list('.box', 
+                                         c('font-size', 'font-family', 'color'), 
+                                         c('15px', 'arial', 'black')))),
+                box(
+                  width = '100%',
+                  textOutput("teamText")
                 )
               ),
               fluidRow(
@@ -644,28 +657,28 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = "Left Team Shots"
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = "Shotmap of left team"
         ) %>%
         add_markers(
           data = df_right_shots,
           hoverinfo='skip',
-          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = "Right Team Shots"
+          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = "Shotmap of right team"
         ) %>%
         add_markers(
           data = df_left_goals,
           hoverinfo='text',
           hovertext=paste(df_left_goals$result.secondaryType),
-          x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+          x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals)), name = "Goals"
         ) %>%
         add_markers(
           data = df_right_goals,
           hoverinfo='text',
           hovertext=paste(df_right_goals$result.secondaryType),
-          x = ~r.x, y=~r.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+          x = ~r.x, y=~r.y, showlegend = FALSE, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
-          xaxis = list(range = c(-110,110)),
-          yaxis = list(range = c(-50,50)),
+          xaxis = list(range = c(-110,110), title = 'x'),
+          yaxis = list(range = c(-50,50), title = 'y'),
           images= list(
             source= paste('data:image/png;base64', txt, sep=','),
             xref= "x",
@@ -697,28 +710,28 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01))
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = "Shotmap of home team"
         ) %>%
         add_markers(
           data = df_right_shots,
           hoverinfo='skip',
-          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01))
+          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = "Shotmap of visiting teams"
         ) %>%
         add_markers(
           data = df_left_goals,
           hoverinfo='text',
           hovertext=paste(df_left_goals$result.secondaryType),
-          x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals))
+          x = ~l.x, y=~l.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_left_goals)), name = "Goals"
         ) %>%
         add_markers(
           data = df_right_goals,
           hoverinfo='text',
           hovertext=paste(df_right_goals$result.secondaryType),
-          x = ~r.x, y=~r.y, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
+          x = ~r.x, y=~r.y, showlegend = FALSE, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
-          xaxis = list(range = c(-110,110)),
-          yaxis = list(range = c(-50,50)),
+          xaxis = list(range = c(-110,110), title = 'x'),
+          yaxis = list(range = c(-50,50), title = 'y'),
           images= list(
             source= paste('data:image/png;base64', txt, sep=','),
             xref= "x",
