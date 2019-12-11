@@ -729,13 +729,14 @@ server <-function(input, output, session) {
     df <- df_player()
     #set the rink image and plot
     txt <- RCurl::base64Encode(readBin(image_file, "raw", file.info(image_file)[1, "size"]), "txt")
+    df <- df[playerType != "PlayerID" & playerType != "Winner" & playerType != "Loser" & playerType != "ServedBy" & playerType != "DrewBy" & playerType != "PenaltyOn"]
     df %>% 
       plot_ly()  %>% 
       add_markers(
         data = df,
         hoverinfo='text',
         hovertext=paste(df$playerType),
-        x = ~s.x, y=~s.y, color=~playerType, marker = list(size = 7, opacity = 0.8)
+        x = ~p.x, y=~p.y, color=~playerType, marker = list(size = 7, opacity = max(0.4,50/nrow(df)))
       ) %>%
       layout(
         xaxis = list(range = c(-110,110)),
