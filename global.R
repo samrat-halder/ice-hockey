@@ -1,5 +1,7 @@
 #source('packages.R', local =T)
-load("data/2019-12-07_nhl-cleaned-data.RData", envir=.GlobalEnv)
+# load("data/2019-12-07_nhl-cleaned-data.RData", envir=.GlobalEnv)
+load('./data/2019-12-11_app-data.RData', envir=.GlobalEnv)
+library(shiny)
 library(shiny)
 library(shinydashboard)
 library(plotly)

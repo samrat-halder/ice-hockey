@@ -421,13 +421,13 @@ server <-function(input, output, session) {
     } else {
       dataPlayerYear <- vF_player_season_data[vF_player_season_data$season %in% allYears]
     }
-    df <- dataPlayerYear[,c('player.id','stat.assists','stat.goals','stat.games','stat.shots','stat.gameWinningGoals')]
+    df <- dataPlayerYear[,c('player.id','stat.assists','stat.goals','stat.games','stat.shots')]
     df <- df %>% drop_na()
     dfGroupByPlayer <- aggregate(. ~ player.id, df, sum)
     dfGroupByPlayer <- merge(dfGroupByPlayer, vF_player_info[,c('player.id','firstName','lastName')], by='player.id')
     dfGroupByPlayer$Player <- paste(dfGroupByPlayer$firstName, dfGroupByPlayer$lastName, sep=' ')
     dfGroupByPlayer <- subset(dfGroupByPlayer, select= names(dfGroupByPlayer) != c('player.id', 'firstName', 'lastName'))
-    dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.gameWinningGoals','stat.assists')]
+    dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.assists')]
     colnames(dfGroupByPlayer) <- c('Name', 'Games', 'Goals', 'Shots', 'Game Winning Goals', 'Assists')
     DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 5))
   })
