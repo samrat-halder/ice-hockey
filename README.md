@@ -3,7 +3,7 @@ Home team advantage is a common phenomenon in sports. Intuitively, we expect a t
 
 But what does it really mean to have an advantage? Looking below the level of wins and losses, what happens to teams when they are at home and away? Does their style of play change? Are there some places that are harder to play at than others? Are there teams that perform better when away compared to others?
 
-Explore this app build with Shiny in R to answer these questions.
+Explore this app built with Shiny in R to answer these questions.
 
 Reference: All data used in this project have been scraped from NHL website
 
