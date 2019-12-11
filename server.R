@@ -1,4 +1,5 @@
 server <-function(input, output, session) {
+  addClass(selector = "body", class = "sidebar-collapse")
   allYears <- c('2018','2017','2016','2015','2014')
   team_choices <- unique(vF_teams_DT$long.name)
   team_choices <- team_choices[order(team_choices)]
@@ -8,25 +9,25 @@ server <-function(input, output, session) {
   vF_player_info$fullName <- paste(vF_player_info$firstName,vF_player_info$lastName,sep=' ')
   vF_game_plays$game_and_event_id <- paste(vF_game_plays$game.id,vF_game_plays$about.eventIdx,sep='')
   vF_game_plays_players$game_and_event_id <- paste(vF_game_plays_players$game.id,vF_game_plays_players$eventIdx,sep='')
-  player_choices <- reactive({
-    player_choices <- unique(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season == input$year]$player.id]$fullName)
-    return(player_choices[order(player_choices)])
-  }) 
   image_file <- "full-rink.png"
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
-  })
-  observe({
-    updateSelectInput(session, inputId = "playerPerf1", choices = player_choices_perf())
-  })
-  observe({
-    updateSelectInput(session, inputId = "playerPerf2", choices = player_choices_perf())
   })
   observeEvent(input$leftTeamArena,{
     updateSelectInput(session,inputId='leftTeam', selected = input$leftTeamArena)
   }) 
   observeEvent(input$rightTeamArena,{
     updateSelectInput(session,inputId = 'rightTeam', selected = input$rightArena)
+  }) 
+  observe({
+    updateSelectInput(session, inputId = "playerPerf1", choices = player_choices_perf())
+  })
+  observe({
+    updateSelectInput(session, inputId = "playerPerf2", choices = player_choices_perf())
+  })
+  player_choices <- reactive({
+    player_choices <- unique(vF_player_info[vF_player_info$player.id %in% vF_player_season_data[vF_player_season_data$season == input$year]$player.id]$fullName)
+    return(player_choices[order(player_choices)])
   }) 
   team_Perf1 <- reactive({
     return(input$teamPerf1)
@@ -160,37 +161,13 @@ server <-function(input, output, session) {
     return(vF_game_plays[(as.numeric(game.id) > as.numeric(lower_lim) & as.numeric(game.id) < as.numeric(upper_lim))
                          & game_and_event_id %in% games_player$game_and_event_id])
   }) 
-  output$performanceByPlayer <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
-              fluidRow(
-                align='center',
-                box(solidHeader = T, width = '100%',
-                    title = 'Compare 3 players', status = "primary", background = "blue",
-                    div(style="display: vertical-align:top; width: 11%; margin-top: 0em;",
-                        selectInput('playerCat', 'Select a Catogory', choices = player_type_choices, selected = 'Defence', multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('playerPerf1', 'Select Player 1', choices = NULL, multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('playerPerf2', 'Select Player 2', choices = NULL, multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL))
-                )
-              ),
-              fluidRow(
-                align='center',
-                box( plotlyOutput("playerTrendPlot1"), status = "primary",  width = 6, solidHeader = FALSE),
-                box( plotlyOutput("playerTrendPlot2"), status = "primary",  width = 6, solidHeader = FALSE)
-              )
-    )
-  })
   output$performanceByTeam <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
+    fluidPage(theme = shinytheme("sandstone"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, width = '100%',
-                    title = 'Compare 3 teams', status = "primary", background = "blue",
+                    title = 'Compare 3 teams', status = "primary",
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('teamPerf1', 'Select Team 1', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
@@ -207,31 +184,55 @@ server <-function(input, output, session) {
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot1"), status = "primary",  width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot1"), status = "primary",  width = 12, solidHeader = FALSE)
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot2"), status = "primary", width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot2"), status = "primary", width = 12, solidHeader = FALSE)
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot3"), status = "primary", width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot3"), status = "primary", width = 12, solidHeader = FALSE)
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("trendPlot4"), status = "primary", width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot4"), status = "primary", width = 12, solidHeader = FALSE)
+              )
+    )
+  })
+  output$performanceByPlayer <- renderUI({
+    fluidPage(theme = shinytheme("sandstone"),
+              fluidRow(
+                align='center',
+                box(solidHeader = T, width = '100%',
+                    title = 'Compare 3 players', status = "primary",
+                    div(style="display: vertical-align:top; width: 11%; margin-top: 0em;",
+                        selectInput('playerCat', 'Select a Catogory', choices = player_type_choices, selected = 'Defence', multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf1', 'Select Player 1', choices = NULL, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL)),
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
+                        selectInput('playerPerf2', 'Select Player 2', choices = NULL, multiple = FALSE,
+                                    selectize = TRUE, width = NULL, size = NULL))
+                )
+              ),
+              fluidRow(
+                align='center',
+                box( plotOutput("playerTrendPlot1"), status = "primary",  width = 6, solidHeader = FALSE),
+                box( plotOutput("playerTrendPlot2"), status = "primary",  width = 6, solidHeader = FALSE)
               )
     )
   })
   output$statisticBySeason <- renderUI({
       tabsetPanel(type = 'tabs',
           tabPanel("Summary",
-            fluidPage(theme = shinytheme("slate"),
+            fluidPage(theme = shinytheme("sandstone"),
                       fluidRow(
                         align='center',
                         #collapsible box for main inputs
                         box(solidHeader = T, width = '100%',
-                            title = 'Arena', status = "primary", background = "blue",
+                            title = 'Arena', status = "primary",
                             div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
                                 selectInput('yearStat', 'By Season', choices = c(allYears, 'All'), selected = '2018', multiple = FALSE,
                                             selectize = TRUE, width = NULL, size = NULL))
@@ -243,8 +244,8 @@ server <-function(input, output, session) {
                       ),
                       fluidRow(
                         align='center',
-                        box(solidHeader = T, width = '100%',
-                            title = 'Team', status = "primary", background = "blue"
+                        box(solidHeader = F, width = '100%',
+                            title = 'Team', status = "primary"
                         )
                       ),
                       fluidRow(
@@ -253,8 +254,8 @@ server <-function(input, output, session) {
                       ),
                       fluidRow(
                         align='center',
-                        box(solidHeader = T, width = '100%',
-                            title = 'Player', status = "primary", background = "blue"
+                        box(solidHeader = F, width = '100%',
+                            title = 'Player', status = "primary"
                         )
                       ),
                       fluidRow(
@@ -264,11 +265,11 @@ server <-function(input, output, session) {
                     )
                   ),
             tabPanel("Visualization",
-                     fluidPage(theme = shinytheme("slate"),
+                     fluidPage(theme = shinytheme("sandstone"),
                                fluidRow(
                                  align='center',
-                                 box(solidHeader = T, width = '100%',
-                                     title = 'Arena (by Cities) Home Vs Away Impact by Season', status = "primary", background = "blue"
+                                 box(solidHeader = F, width = '100%',
+                                     title = 'Arena (by Cities) Home Vs Away Impact by Season', status = "primary"
                                  )
                                ),
                                fluidRow(
@@ -278,8 +279,8 @@ server <-function(input, output, session) {
                                ),
                                fluidRow(
                                  align='center',
-                                 box(solidHeader = T, width = '100%',
-                                     title = 'Team Home Vs Away Performance by Season', status = "primary", background = "blue"
+                                 box(solidHeader = F, width = '100%',
+                                     title = 'Team Home Vs Away Performance by Season', status = "primary"
                                  )
                                ),
                                fluidRow(
@@ -291,27 +292,13 @@ server <-function(input, output, session) {
             )
       )
   })
-  output$teamText <- renderText({
-    if (input$leftHome == "Home") {
-      left_home <- "at home"
-    }else{
-      left_home <- "away"
-    }
-    if (input$rightHome == "Home") {
-      right_home <- "at home"
-    }else{
-      right_home <- "away"
-    }
-    paste0("This is the shot map of ", input$leftTeam,
-           " playing ", left_home, " on the left and ",input$rightTeam, " playing ",right_home," on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
-  })
   output$shotByTeam <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
+    fluidPage(theme = shinytheme("sandstone"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, collapsible = T, width = '100%',
-                    title = "Filters", status = "primary", background = "blue",
+                    title = "Filters", status = "primary", 
                     #input selections are inside div so we can place left and right inputs side by side
                     div(style="display: inline-block;vertical-align:top; width: 30% ; margin-bottom: 0em;",
                         selectInput('leftTeam', 'Team 1', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
@@ -350,17 +337,13 @@ server <-function(input, output, session) {
               )
     )
   })
-  output$arenaText <- renderText({
-    paste0("This is the shot map of ", arena_team(),
-           " playing at home on the left and teams visiting ", input$arena, " on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
-  })
   output$shotByArena <- renderUI({
-    fluidPage(theme = shinytheme("flatly"),
+    fluidPage(theme = shinytheme("sandstone"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, collapsible = T, width = '100%',
-                    title = "Filters", status = "primary", background = "blue",
+                    title = "Filters", status = "primary",
                     #input selections are inside div so we can place left and right inputs side by side
                     div(style="display: inline-block;vertical-align:top; width: 35% ; margin-top: 0em;",
                         selectInput('arena', 'Arena', choices = arena_choices, multiple = FALSE,
@@ -388,12 +371,12 @@ server <-function(input, output, session) {
     )
   })
   output$shotByPlayer <- renderUI({
-    fluidPage(theme = shinytheme("slate"),
+    fluidPage(theme = shinytheme("sandstone"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, collapsible = T, width = '100%',
-                    title = "Filters", status = "primary", background = "blue",
+                    title = "Filters", status = "primary",
                     #input selections are inside div so we can place left and right inputs side by side
                     # div(style="display: inline-block;vertical-align:top; width: 22% ; margin-top: 0em;",
                     #     selectInput('leftPlayer', 'Left Player', choices = player_choices(), multiple = FALSE,
@@ -439,7 +422,26 @@ server <-function(input, output, session) {
     dfGroupByPlayer$Player <- paste(dfGroupByPlayer$firstName, dfGroupByPlayer$lastName, sep=' ')
     dfGroupByPlayer <- subset(dfGroupByPlayer, select= names(dfGroupByPlayer) != c('player.id', 'firstName', 'lastName'))
     dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.gameWinningGoals','stat.assists')]
+    colnames(dfGroupByPlayer) <- c('Name', 'Games', 'Goals', 'Shots', 'Game Winning Goals', 'Assists')
     DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 5))
+  })
+  output$table_statistic_team <- DT::renderDataTable({
+    statYear <- selected_yearStat()
+    if (statYear != 'All'){
+      dataStatYear <- vF_game_info[vF_game_info$season == statYear]
+    } else {
+      dataStatYear <- vF_game_info
+    }
+    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'away.win','home.goals','away.goals')]
+    #awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
+    colnames(homeTeam)[1] <- 'team.id'
+    homeTeamGroupBy <- aggregate( .~team.id, homeTeam, sum)
+    #awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
+    #teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
+    teamStat <- merge(homeTeamGroupBy, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
+    teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
+    colnames(teamStat) <- c('Name', 'Home Venue', 'City', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals')
+    DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
   })
   output$table_statistic_arena <- DT::renderDataTable({
     statYear <- selected_yearStat()
@@ -453,130 +455,133 @@ server <-function(input, output, session) {
     dfGroupByArena <- aggregate(. ~ name , df, sum)
     colnames(dfGroupByArena)[1] <- 'venue.name'
     dfGroupByArena <- merge(dfGroupByArena, vF_teams_DT[,c('venue.name', 'venue.city', 'locationName', 'division.name')], by = 'venue.name')
+    colnames(dfGroupByArena) <- c('Name', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals', 'City', 'Location', 'Division')
     DT::datatable(dfGroupByArena, options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
     
   })
-  output$table_statistic_team <- DT::renderDataTable({
-    statYear <- selected_yearStat()
-    if (statYear != 'All'){
-      dataStatYear <- vF_game_info[vF_game_info$season == statYear]
-    } else {
-      dataStatYear <- vF_game_info
-    }
-    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'away.win','home.goals','away.goals')]
-    #awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
-    colnames(homeTeam)[1] <- colnames(awayTeam)[1] <- 'team.id'
-    homeTeamGroupBy <- aggregate( .~team.id, homeTeam, sum)
-    #awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
-    #teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
-    teamStat <- merge(homeTeamGroupBy, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
-    teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
-    DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
-  })
-  output$trendPlot1 <- renderPlotly({
+  output$trendPlot1 <- renderPlot({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
     df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
     if (team_stat_type() == 'Macro') {
       df <- df[,c('game.id', "team.id", 'HoA', 'won')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = won, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = won, x = as.factor(team.id), fill = HoA ), size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Wins')
+        xlab('') +ylab('') + ggtitle('Wins') + theme(plot.title = element_text(hjust = 0.5))
     } else {
       df <- df[,c('game.id', "team.id", 'HoA', 'blocked')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = blocked, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = blocked, x = as.factor(team.id), fill = HoA), size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Blocked')
+        xlab('') +ylab('') + ggtitle('Blocked') + theme(plot.title = element_text(hjust = 0.5))
     }
     
   })
-  output$trendPlot2 <- renderPlotly({
+  output$trendPlot2 <- renderPlot({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
     df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
     if (team_stat_type() == 'Macro') {
       df <- df[,c('game.id', "team.id", 'HoA', 'goals')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = goals, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = goals, x = as.factor(team.id), fill = HoA),  size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Goals')
+        xlab('') +ylab('') + ggtitle('Goals') + theme(plot.title = element_text(hjust = 0.5))
     } else {
       df <- df[,c('game.id', "team.id", 'HoA', 'takeaways')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = takeaways, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = takeaways, x = as.factor(team.id), fill = HoA),  size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Takeaways')
+        xlab('') +ylab('') + ggtitle('Takeaways') + theme(plot.title = element_text(hjust = 0.5))
     }
     
   })
-  output$trendPlot3 <- renderPlotly({
+  output$trendPlot3 <- renderPlot({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
     df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
     if (team_stat_type() == 'Macro'){
       df <- df[,c('game.id', "team.id", 'HoA', 'shots')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = shots, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = shots, x = as.factor(team.id), fill = HoA), size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Shots')
+        xlab('') +ylab('') + ggtitle('Shots') + theme(plot.title = element_text(hjust = 0.5))
     } else {
       df <- df[,c('game.id', "team.id", 'HoA', 'giveaways')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = giveaways, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = giveaways, x = as.factor(team.id)), fill = HoA, size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Giveaways')
+        xlab('') +ylab('') + ggtitle('Giveaways') + theme(plot.title = element_text(hjust = 0.5))
     }
     
   })
-  output$trendPlot4 <- renderPlotly({
+  output$trendPlot4 <- renderPlot({
     teamIds <- vF_teams_DT[long.name %in% c(input$teamPerf1, input$teamPerf2, input$teamPerf3)]$team.id
     df <- vF_game_teams_stats[team.id %in% teamIds]
     df$game.id <- str_sub(df$game.id, end=-7)
     df <- as.data.frame(df %>% group_by(game.id, team.id, HoA) %>% summarise_each(funs(sum)))
     if (team_stat_type() == 'Macro') {
       df <- df[,c('game.id', "team.id", 'HoA', 'pim')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = pim, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = pim, x = as.factor(team.id), fill = HoA), size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Penalty Infraction Minute')
+        xlab('') +ylab('') + ggtitle('Penalty Infraction Minute') + theme(plot.title = element_text(hjust = 0.5))
     } else {
       df <- df[,c('game.id', "team.id", 'HoA', 'hits')]
+      df <- merge(df, vF_teams_DT[,c('team.id','short.name')], by='team.id')
+      df$team.id <- df$short.name
       ggplot() + 
-        geom_bar(data =df, aes(y = hits, x = as.factor(team.id), fill = HoA, size=0.25, width=0.6, alpha= 0.5), stat = "identity", position = 'stack') + 
+        geom_bar(data =df, aes(y = hits, x = as.factor(team.id), fill = HoA), size=0.25, width=0.6, alpha= 0.5, stat = "identity", position = 'stack') + 
         theme_bw() + 
         facet_grid(~game.id) +
         scale_fill_manual("legend", values = c("cyan1", "bisque4")) + 
-        xlab('') +ylab('') + ggtitle('Hits')
+        xlab('') +ylab('') + ggtitle('Hits') + theme(plot.title = element_text(hjust = 0.5))
     }
     
   })
-  output$playerTrendPlot1 <- renderPlotly({
+  output$playerTrendPlot1 <- renderPlot({
     playerId <- vF_player_info[(fullName == input$playerPerf1)]$player.id 
     df <- vF_player_season_data[(player.id == playerId) & (season %in% allYears)]
     if (input$playerCat %in% c('Defence','Offence')){
       df <- df[,c('season', 'stat.assists', 'stat.goals', 'stat.games', 
                   'stat.points','stat.shots', 'stat.penaltyMinutes','stat.hits','stat.blocked')]
+      df <- rename(df, c('stat.assists' = 'Assists', 'stat.goals'='Goals', 'stat.games'='Games', 
+                   'stat.points' = 'Points','stat.shots'='Shots', 'stat.penaltyMinutes'='Penalty Minutes','stat.hits'='Hits','stat.blocked'='Blocked'))
     } else {
       df <- df[,c('season', 'stat.wins','stat.losses','stat.shutouts')]
+      df <- rename(df, c('stat.wins'='Wins','stat.losses'='Losses','stat.shutouts'='Shutouts'))
     }
     
     df$season = as.factor(df$season)
@@ -586,9 +591,8 @@ server <-function(input, output, session) {
     #  gather(var, value, -rowname) %>% 
     #  spread(rowname, value)
     #colnames(dft) <- dft[1,]
-    dft <- dft[-c(1),]
-    
-    dft[,2:ncol(dft)] <- sapply(dft[,2:ncol(dft)], as.numeric)
+    #dft <- dft[-c(1),]
+    #dft[,2:ncol(dft)] <- sapply(dft[,2:ncol(dft)], as.numeric)
     #ggparcoord(dft, columns=2:ncol(dft), groupColumn = 1, 
     #           title='', scale = 'globalminmax')
     data_long <- melt(df, id="season") 
@@ -597,14 +601,17 @@ server <-function(input, output, session) {
             scale_y_continuous(breaks= pretty_breaks()) + 
             geom_line() + geom_point() 
   })
-  output$playerTrendPlot2 <- renderPlotly({
+  output$playerTrendPlot2 <- renderPlot({
     playerId <- vF_player_info[(fullName == input$playerPerf2)]$player.id 
     df <- vF_player_season_data[(player.id == playerId) & (season %in% allYears)]
     if (input$playerCat %in% c('Defence','Offence')){
       df <- df[,c('season', 'stat.assists', 'stat.goals', 'stat.games', 
                   'stat.points','stat.shots', 'stat.penaltyMinutes','stat.hits','stat.blocked')]
+      df <- rename(df, c('stat.assists' = 'Assists', 'stat.goals'='Goals', 'stat.games'='Games', 
+                         'stat.points'='Points','stat.shots'='Shots', 'stat.penaltyMinutes'='Penalty Minutes','stat.hits'='Hits','stat.blocked'='Blocked'))
     } else {
       df <- df[,c('season', 'stat.wins','stat.losses','stat.shutouts')]
+      df <- rename(df, c('stat.wins'='Wins','stat.losses'='Losses','stat.shutouts'='Shutouts'))
     }
     df$season = as.factor(df$season)
     df <- unique(df, by='season')
@@ -612,10 +619,10 @@ server <-function(input, output, session) {
     #  rownames_to_column %>% 
     #  gather(var, value, -rowname) %>% 
     #  spread(rowname, value)
-    colnames(dft) <- dft[1,]
-    dft <- dft[-c(1),]
+    #colnames(dft) <- dft[1,]
+    #dft <- dft[-c(1),]
     
-    dft[,2:ncol(dft)] <- sapply(dft[,2:ncol(dft)], as.numeric)
+    #dft[,2:ncol(dft)] <- sapply(dft[,2:ncol(dft)], as.numeric)
     #ggparcoord(dft, columns=2:ncol(dft), groupColumn = 1, 
     #           title='', scale = 'globalminmax')
     data_long <- melt(df, id="season") 
@@ -639,9 +646,10 @@ server <-function(input, output, session) {
     teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
     teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
+    teamStat<- rename(teamStat, c('home.win' = 'Home Wins', 'away.win' = 'Away Wins', 'home.goals'='Home Goals', 'away.goals'='Away Goals'))
     teamStatGather <- teamStat %>% 
-                    gather(key = 'GoalType', value = 'Goals', home.goals, away.goals) %>%
-                    gather(key = 'WinType', value = 'Wins', home.win, away.win)
+      gather(key='GoalType', value = 'Goals', 'Home Goals', 'Away Goals') %>%
+      gather(key = 'WinType', value = 'Wins', 'Home Wins', 'Away Wins')
     ggplot(teamStatGather, aes(Goals, fct_reorder2(long.name, GoalType == 'away.goals', Goals, .desc = FALSE), color = GoalType)) + 
       geom_point() + ylab('')
   })
@@ -660,9 +668,10 @@ server <-function(input, output, session) {
     teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
     teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
+    teamStat<- rename(teamStat, c('home.win' = 'Home Wins', 'away.win' = 'Away Wins', 'home.goals'='Home Goals', 'away.goals'='Away Goals'))
     teamStatGather <- teamStat %>% 
-      gather(key = 'GoalType', value = 'Goals', home.goals, away.goals) %>%
-      gather(key = 'WinType', value = 'Wins', home.win, away.win)
+      gather(key='GoalType', value = 'Goals', 'Home Goals', 'Away Goals') %>%
+      gather(key = 'WinType', value = 'Wins', 'Home Wins', 'Away Wins')
     ggplot(teamStatGather, aes(Wins, fct_reorder2(long.name, WinType == 'away.win', Wins, .desc = FALSE), color = WinType)) + 
       geom_point() + ylab('')
   })
@@ -685,9 +694,10 @@ server <-function(input, output, session) {
     #colnames(dfGroupByArena)[7] <- 'country.etc'
     arenaCities <- merge(us_cities, dfGroupByArena, by = 'name')
     arenaCities <- arenaCities %>% distinct(name, .keep_all = TRUE)
+    arenaCities<- rename(arenaCities, c('home.win' = 'Home Wins', 'away.win' = 'Away Wins', 'home.goals'='Home Goals', 'away.goals'='Away Goals'))
     arenaCitiesGather <- arenaCities %>% 
-      gather(key='GoalType', value = 'Goals', home.goals, away.goals) %>%
-      gather(key = 'WinType', value = 'Wins', home.win, away.win)
+      gather(key='GoalType', value = 'Goals', 'Home Goals', 'Away Goals') %>%
+      gather(key = 'WinType', value = 'Wins', 'Home Wins', 'Away Wins')
     set_breaks = function(limits) {
       seq(limits[1], limits[2], by = round((limits[2]-limits[1])/4))
     }
@@ -713,9 +723,10 @@ server <-function(input, output, session) {
     us_cities$name <- str_sub(us_cities$name, end = -4)
     arenaCities <- merge(us_cities, dfGroupByArena, by = 'name') 
     arenaCities <- arenaCities %>% distinct(name, .keep_all = TRUE)
+    arenaCities<- rename(arenaCities, c('home.win' = 'Home Wins', 'away.win' = 'Away Wins', 'home.goals'='Home Goals', 'away.goals'='Away Goals'))
     arenaCitiesGather <- arenaCities %>% 
-      gather(key='GoalType', value = 'Goals', home.goals, away.goals) %>%
-      gather(key = 'WinType', value = 'Wins', home.win, away.win)
+      gather(key='GoalType', value = 'Goals', 'Home Goals', 'Away Goals') %>%
+      gather(key = 'WinType', value = 'Wins', 'Home Wins', 'Away Wins')
     set_breaks = function(limits) {
       seq(limits[1], limits[2], by = round((limits[2]-limits[1])/4))
     }
@@ -892,5 +903,23 @@ server <-function(input, output, session) {
           sizing = "stretch"
         )
       )
+  })
+  output$teamText <- renderText({
+    if (input$leftHome == "Home") {
+      left_home <- "at home"
+    }else{
+      left_home <- "away"
+    }
+    if (input$rightHome == "Home") {
+      right_home <- "at home"
+    }else{
+      right_home <- "away"
+    }
+    paste0("This is the shot map of ", input$leftTeam,
+           " playing ", left_home, " on the left and ",input$rightTeam, " playing ",right_home," on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
+  })
+  output$arenaText <- renderText({
+    paste0("This is the shot map of ", arena_team(),
+           " playing at home on the left and teams visiting ", input$arena, " on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
   })
 }
