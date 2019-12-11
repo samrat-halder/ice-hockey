@@ -815,12 +815,12 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shotmap of",input$leftPlayer)
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shotmap of",arena_team())
         ) %>%
         add_markers(
           data = df_right_shots,
           hoverinfo='skip',
-          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = paste("Shotmap of",input$rightPlayer)
+          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = paste("Shotmap of teams visiting",input$arena )
         ) %>%
         add_markers(
           data = df_left_goals,
