@@ -413,6 +413,3 @@ rm(sel)
 
 # Saving impage
 save.image(paste0(Sys.Date(),"_nhl-cleaned-data.RData"))
-
-load("2019-12-07_nhl-cleaned-data.RData")
-save.image("2019-12-07_nhl-cleaned-data.RData")
