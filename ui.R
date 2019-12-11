@@ -25,7 +25,7 @@ sidebar <- dashboardSidebar(
     sidebarMenu(
       shinyjs::useShinyjs(),
       id = "tabs",
-      menuItem('Shots Map',
+      menuItem('Shot Map',
        menuSubItem('Team', tabName = 'team_shots'),
        menuSubItem('Arena', tabName = 'arena_shots'),
        menuSubItem('Player', tabName = 'player_shots')
