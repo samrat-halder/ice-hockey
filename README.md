@@ -6,3 +6,10 @@ But what does it really mean to have an advantage? Looking below the level of wi
 Explore this app build with Shiny in R to answer these questions.
 
 Reference: All data used in this project have been scraped from NHL website
+
+To test the app on your local computer please follow the steps as mentioned below:
+1. Clone the repository
+2. Run packages.R
+3. Run global.R
+
+If you want to downloaded more up-to-date data from NHL you may use the scripts in /data/
