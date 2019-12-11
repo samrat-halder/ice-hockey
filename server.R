@@ -226,6 +226,16 @@ server <-function(input, output, session) {
                       fluidRow(
                         align = "center",
                         DT::dataTableOutput("table_statistic_team")
+                      ),
+                      fluidRow(
+                        align='center',
+                        box(solidHeader = T, width = '100%',
+                            title = 'Player', status = "primary", background = "blue"
+                        )
+                      ),
+                      fluidRow(
+                        align = "center",
+                        DT::dataTableOutput("table_statistic_player")
                       )
                     )
                   ),
@@ -348,7 +358,7 @@ server <-function(input, output, session) {
     )
   })
   output$table_statistic_player <- DT::renderDataTable({
-    playerYear <- selected_yearPlayer()
+    playerYear <- selected_yearStat()
     if (playerYear != 'All'){
       dataPlayerYear <- vF_player_season_data[vF_player_season_data$season == playerYear]
     } else {
@@ -361,7 +371,7 @@ server <-function(input, output, session) {
     dfGroupByPlayer$Player <- paste(dfGroupByPlayer$firstName, dfGroupByPlayer$lastName, sep=' ')
     dfGroupByPlayer <- subset(dfGroupByPlayer, select= names(dfGroupByPlayer) != c('player.id', 'firstName', 'lastName'))
     dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.gameWinningGoals','stat.assists')]
-    DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 10))
+    DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 5))
   })
   output$table_statistic_arena <- DT::renderDataTable({
     statYear <- selected_yearStat()
@@ -385,13 +395,13 @@ server <-function(input, output, session) {
     } else {
       dataStatYear <- vF_game_info
     }
-    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'home.goals')]
-    awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
+    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'away.win','home.goals','away.goals')]
+    #awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
     colnames(homeTeam)[1] <- colnames(awayTeam)[1] <- 'team.id'
     homeTeamGroupBy <- aggregate( .~team.id, homeTeam, sum)
-    awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
-    teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
-    teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
+    #awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
+    #teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
+    teamStat <- merge(homeTeamGroupBy, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
     DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
   })
