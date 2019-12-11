@@ -1,4 +1,3 @@
-load("./data/2019-12-07_nhl-cleaned-data.RData")
 header <- dashboardHeader(
   title = "NHL ICE HOCKEY"
 )
