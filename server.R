@@ -428,7 +428,7 @@ server <-function(input, output, session) {
     dfGroupByPlayer$Player <- paste(dfGroupByPlayer$firstName, dfGroupByPlayer$lastName, sep=' ')
     dfGroupByPlayer <- subset(dfGroupByPlayer, select= names(dfGroupByPlayer) != c('player.id', 'firstName', 'lastName'))
     dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.assists')]
-    colnames(dfGroupByPlayer) <- c('Name', 'Games', 'Goals', 'Shots', 'Game Winning Goals', 'Assists')
+    colnames(dfGroupByPlayer) <- c('Name', 'Games', 'Goals', 'Shots', 'Assists')
     DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 5))
   })
   output$table_statistic_team <- DT::renderDataTable({
