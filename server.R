@@ -13,7 +13,6 @@ server <-function(input, output, session) {
     return(player_choices[order(player_choices)])
   }) 
   image_file <- "full-rink.png"
-  
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
   })
@@ -22,9 +21,6 @@ server <-function(input, output, session) {
   })
   observe({
     updateSelectInput(session, inputId = "playerPerf2", choices = player_choices_perf())
-  })
-  observe({
-    updateSelectInput(session, inputId = "playerPerf3", choices = player_choices_perf())
   })
   observeEvent(input$leftTeamArena,{
     updateSelectInput(session,inputId='leftTeam', selected = input$leftTeamArena)
@@ -166,15 +162,13 @@ server <-function(input, output, session) {
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('playerPerf2', 'Select Player 2', choices = NULL, multiple = FALSE,
-                                    selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('playerPerf3', 'Select Player 3', choices = NULL, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
               fluidRow(
                 align='center',
-                box( plotlyOutput("playerTrendPlot"), status = "primary",  width = 12, solidHeader = FALSE)
+                box( plotlyOutput("playerTrendPlot1"), status = "primary",  width = 6, solidHeader = FALSE),
+                box( plotlyOutput("playerTrendPlot2"), status = "primary",  width = 6, solidHeader = FALSE)
               )
     )
   })
@@ -519,19 +513,60 @@ server <-function(input, output, session) {
     }
     
   })
-  output$playerTrendPlot <- renderPlotly({
-    if (selected_playerCat() == 'Offence'){
-      playerIds <- vF_player_info[(fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)) & (primaryPosition.code %in% c('R','L','C'))]$player.id 
-    } else if (selected_playerCat() == 'Defence') {
-      playerIds <- vF_player_info[(fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)) & (primaryPosition.code == 'D')]$player.id 
-    } else if (selected_playerCat() == 'Goalie') {
-      playerIds <- vF_player_info[(fullName %in% c(input$playerPerf1, input$playerPerf2, input$playerPerf3)) & (primaryPosition.code == 'G')]$player.id 
+  output$playerTrendPlot1 <- renderPlotly({
+    playerId <- vF_player_info[(fullName == input$playerPerf1)]$player.id 
+    df <- vF_player_season_data[(player.id == playerId) & (season %in% allYears)]
+    if (input$playerCat %in% c('Defence','Offence')){
+      df <- df[,c('season', 'stat.assists', 'stat.goals', 'stat.games', 
+                  'stat.points','stat.shots', 'stat.penaltyMinutes','stat.hits','stat.blocked')]
+    } else {
+      df <- df[,c('season', 'stat.wins','stat.losses','stat.shutouts')]
     }
-    df <- vF_game_plays_players[player.id %in% playerIds]
-    df$year <- substr(df$game.id,1,4)
-    df <- as.data.frame(df %>% group_by(player.id, year, playerType) %>% tally())
     
+    df$season = as.factor(df$season)
+    df <- unique(df, by='season')
+    #dft <- df %>%
+    #  rownames_to_column %>% 
+    #  gather(var, value, -rowname) %>% 
+    #  spread(rowname, value)
+    #colnames(dft) <- dft[1,]
+    dft <- dft[-c(1),]
     
+    dft[,2:ncol(dft)] <- sapply(dft[,2:ncol(dft)], as.numeric)
+    #ggparcoord(dft, columns=2:ncol(dft), groupColumn = 1, 
+    #           title='', scale = 'globalminmax')
+    data_long <- melt(df, id="season") 
+    ggplot(data=data_long,
+           aes(x=season, y=value, colour=variable, group = variable)) +
+            scale_y_continuous(breaks= pretty_breaks()) + 
+            geom_line() + geom_point() 
+  })
+  output$playerTrendPlot2 <- renderPlotly({
+    playerId <- vF_player_info[(fullName == input$playerPerf2)]$player.id 
+    df <- vF_player_season_data[(player.id == playerId) & (season %in% allYears)]
+    if (input$playerCat %in% c('Defence','Offence')){
+      df <- df[,c('season', 'stat.assists', 'stat.goals', 'stat.games', 
+                  'stat.points','stat.shots', 'stat.penaltyMinutes','stat.hits','stat.blocked')]
+    } else {
+      df <- df[,c('season', 'stat.wins','stat.losses','stat.shutouts')]
+    }
+    df$season = as.factor(df$season)
+    df <- unique(df, by='season')
+    #dft <- df %>%
+    #  rownames_to_column %>% 
+    #  gather(var, value, -rowname) %>% 
+    #  spread(rowname, value)
+    colnames(dft) <- dft[1,]
+    dft <- dft[-c(1),]
+    
+    dft[,2:ncol(dft)] <- sapply(dft[,2:ncol(dft)], as.numeric)
+    #ggparcoord(dft, columns=2:ncol(dft), groupColumn = 1, 
+    #           title='', scale = 'globalminmax')
+    data_long <- melt(df, id="season") 
+    ggplot(data=data_long,
+          aes(x=season, y=value, colour=variable, group = variable)) +
+         scale_y_continuous(breaks= pretty_breaks()) +
+          geom_line() + geom_point()
   })
   output$teamGoals <- renderPlot({
     statYear <- selected_yearStat()
