@@ -1,7 +1,6 @@
 load("./data/2019-12-07_nhl-cleaned-data.RData")
 header <- dashboardHeader(
   title = "NHL ICE HOCKEY"
-   #span("dashboard",style = "color: yellow; font-size: 36px; font-weight: bold")
 )
 sidebar <- dashboardSidebar(
     #Here goes more customization
