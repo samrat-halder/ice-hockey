@@ -226,14 +226,14 @@ Paragraph on arena visualizations (to be cleaned up and actual plots to be attac
 
 These are all pretty similar. The home team has a denser region of shots and goals right in front of goal.
 
-Anaheim - Very dense crescent shape in front of goal for Ducks
-Washington - Denser in front of goal for Capitals
+Anaheim - Very dense crescent shape in front of goal for Ducks. The Ducks are known for being a large, physical team and this manifests in their shot chart. They work to get the puck close to the net. Meanwhile, on the defensive end, the crescent around the net is much wider (i.e. many shots from slightly farther out) and not as dense.
+Washington - Denser in front of goal for Capitals. Can clearly see where Alex Ovechkin (one of the best players in the NHL) is shooting from. He is known for setting up on the left dot and firing slapshots. For visiting teams, there is a lot more shading near the blue line, indicating more shots are coming from the defense. This shows how the Capitals are forcing teams to shoot from farther away.
 Montreal -
-Nashville - Area of danger slightly smaller but denser with goals for Predators
-Winnipeg - Slightly denser for Jets but not by much
-Pittsburgh - Penguins map is very dense in front of goal compared to visitors
+Nashville - Area of danger slightly smaller but denser with goals for Predators. Overall not too big of a difference however.
+Winnipeg - Slightly denser for Jets but not by much. Can see a noticeable difference vs the away team, but nowhere near as extreme as Anaheim.
+Pittsburgh - Penguins map is very dense in front of goal compared to visitors. Very extreme difference vs away; a little suprising that Pittsburgh isn't popping as difficult to play at.
 
-The density of the home danger area is less pronounced for Edmonton but not for Ottawa (Ottawa supposedly the easiest to play away). Ottawa has a denser area in front of goal than their visitors.
+The density of the home danger area is less pronounced for Edmonton but not for Ottawa (Ottawa supposedly the easiest to play away). Ottawa has a denser area in front of goal than their visitors. While Edmonton's shot map looks denser around the net than visitors, the number of goals in this area is very similar. 
 
 ### Case study: 
 
@@ -269,13 +269,13 @@ Paragraph on team home v away visualizations (to be cleaned up and actual plots 
 
 Teams that perform relatively well away
 - Carolina Hurricanes: When playing away their shotmap is a bit more compact but shots close to goal less dense. Overall not too much of a difference as expected
-- New Jersey Devils: Home map is more compact with a lot of shots coming from the left side. 
-- San Jose Sharks: Home map has a good amount of goals coming from the left.
+- New Jersey Devils: Home map is more compact with a lot of shots coming from the left side. Even though their shots/goals are not as dense around the net when away, the Devils get additional scoring when away from the arc around this. 
+- San Jose Sharks: Home map has a good amount of goals coming from the left. Can clearly see where their star defensman, Brent Burns, is shooting from. He shoots a LOT from the right point.
 
 Teams that perform relatively worse away
-- Pittsburgh Penguins: Very dense around the goal when playing at home, much more spread out when playing away
-- Calgary Flames: Again pretty dense around goal when playing at home but patterns arent as clear
-- Winnipeg Jets: Pattern isnt too clear
+- Pittsburgh Penguins: Very dense around the goal when playing at home, much more spread out when playing away. Difference here is pretty crazy!
+- Calgary Flames: Again pretty dense around goal when playing at home but patterns arent as clear. Goals are also more spread out when away
+- Winnipeg Jets: Pattern isnt too clear. Seems very dense right in front of the net at home; much less so away. 
 
 Teams that have interesting patterns
 - Philadelphia Flyers: Home plot shows shots clustered just past the blue line(dont know what its called) and halfway between that blue line and goal. Suggests they have a structured way of playing at home but not away
