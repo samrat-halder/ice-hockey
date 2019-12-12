@@ -434,18 +434,19 @@ server <-function(input, output, session) {
     } else {
       dataStatYear <- vF_game_info
     }
-    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'away.win','home.goals','away.goals')]
-    #awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
+    homeTeam <- dataStatYear[,c('home.teamID', 'home.win', 'home.goals')]
+    awayTeam <- dataStatYear[,c('away.teamID', 'away.win', 'away.goals')]
     colnames(homeTeam)[1] <- 'team.id'
     homeTeamGroupBy <- aggregate( .~team.id, homeTeam, sum)
-    #awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
-    #teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
-    teamStat <- merge(homeTeamGroupBy, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
+    colnames(awayTeam)[1] <- 'team.id'
+    awayTeamGroupBy <- aggregate( .~ team.id, awayTeam, sum)
+    teamStat <- merge(homeTeamGroupBy, awayTeamGroupBy, by = 'team.id')
+    teamStat <- merge(teamStat, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
     colnames(teamStat) <- c('Name', 'Home Venue', 'City', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals')
-    #teamStat$`Total Wins` <- teamStat$`Home Wins` + teamStat$`Away Wins`
-    teamStat <- teamStat[,c('Name', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals')]
-    teamStat <- teamStat[order(teamStat$`Home Wins`, decreasing = T),]
+    teamStat$`Total Wins` <- teamStat$`Home Wins` + teamStat$`Away Wins`
+    teamStat <- teamStat[,c('Name', 'Total Wins', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals')]
+    teamStat <- teamStat[order(teamStat$`Total Wins`, decreasing = T),]
     rownames(teamStat) <- NULL
     DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
   })
