@@ -45,4 +45,6 @@ load('./data/2019-12-11_app-data.RData')
 vF_game_info[home.teamID == 8, name := 'Bell Centre'] #Centre Bell before
 vF_game_info[home.teamID == 14, name := 'AMALIE Arena'] #Amalie Arena before
 
+vF_teams_DT <- vF_teams_DT[-31]
+
 save.image('./data/2019-12-11_app-data.RData')
