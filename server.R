@@ -423,6 +423,8 @@ server <-function(input, output, session) {
     dfGroupByPlayer <- subset(dfGroupByPlayer, select= !(names(dfGroupByPlayer) %in% c('player.id', 'firstName', 'lastName')))
     dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.assists')]
     colnames(dfGroupByPlayer) <- c('Name', 'Games', 'Goals', 'Shots', 'Assists')
+    dfGroupByPlayer <- dfGroupByPlayer[order(dfGroupByPlayer$Games, decreasing = T),]
+    rownames(dfGroupByPlayer) <- NULL
     DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 5))
   })
   output$table_statistic_team <- DT::renderDataTable({
@@ -441,6 +443,10 @@ server <-function(input, output, session) {
     teamStat <- merge(homeTeamGroupBy, vF_teams_DT[,c('team.id', 'long.name', 'venue.name', 'venue.city')], by = 'team.id')
     teamStat <- teamStat[,c('long.name', 'venue.name', 'venue.city', 'home.win', 'away.win', 'home.goals', 'away.goals')]
     colnames(teamStat) <- c('Name', 'Home Venue', 'City', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals')
+    #teamStat$`Total Wins` <- teamStat$`Home Wins` + teamStat$`Away Wins`
+    teamStat <- teamStat[,c('Name', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals')]
+    teamStat <- teamStat[order(teamStat$`Home Wins`, decreasing = T),]
+    rownames(teamStat) <- NULL
     DT::datatable(teamStat,options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
   })
   output$table_statistic_arena <- DT::renderDataTable({
@@ -454,8 +460,11 @@ server <-function(input, output, session) {
     df <- dataStatYear[,c('name','home.win','away.win','home.goals','away.goals')]
     dfGroupByArena <- aggregate(. ~ name , df, sum)
     colnames(dfGroupByArena)[1] <- 'venue.name'
-    dfGroupByArena <- merge(dfGroupByArena, vF_teams_DT[,c('venue.name', 'venue.city', 'locationName', 'division.name')], by = 'venue.name')
-    colnames(dfGroupByArena) <- c('Name', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals', 'City', 'Location', 'Division')
+    dfGroupByArena <- merge(dfGroupByArena, vF_teams_DT[,c('venue.name', 'long.name', 'venue.city', 'locationName', 'division.name')], by = 'venue.name')
+    colnames(dfGroupByArena) <- c('Name', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals', 'Home Team', 'City', 'Location', 'Division')
+    dfGroupByArena <- dfGroupByArena[,c('Name', 'Home Wins', 'Away Wins', 'Home Goals', 'Away Goals', 'Home Team', 'Division')]
+    dfGroupByArena <- dfGroupByArena[order(dfGroupByArena$`Home Wins`, decreasing = T),]
+    rownames(dfGroupByArena) <- NULL
     DT::datatable(dfGroupByArena, options = list(orderClasses = TRUE, lengthMenu = c(5, 30, 50), pageLength = 5))
     
   })
