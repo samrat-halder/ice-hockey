@@ -174,12 +174,12 @@ server <-function(input, output, session) {
                          & game_and_event_id %in% games_player$game_and_event_id])
   }) 
   output$performanceByTeam <- renderUI({
-    fluidPage(theme = shinytheme("sandstone"),
+    fluidPage(theme = shinytheme("spacelab"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
-                box(solidHeader = T, width = '100%',
-                    title = 'Compare 3 teams', status = "primary",
+                box(solidHeader = F, status = 'primary', width = '100%',
+                    title = 'Compare 3 teams', 
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('teamPerf1', 'Select Team 1', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
@@ -189,36 +189,36 @@ server <-function(input, output, session) {
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('teamPerf3', 'Select Team 3', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)), 
-                    div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 15%; margin-top: 0em;",
                         selectInput('statType', 'Statistics Level', choices = c('Macro','Micro'), selected = 'Macro', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
               fluidRow(
                 align='center',
-                box( plotOutput("trendPlot1"), status = "primary",  width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot1"),  width = 12, solidHeader = FALSE, status = 'primary')
               ),
               fluidRow(
                 align='center',
-                box( plotOutput("trendPlot2"), status = "primary", width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot2"), width = 12, solidHeader = FALSE, status = 'primary')
               ),
               fluidRow(
                 align='center',
-                box( plotOutput("trendPlot3"), status = "primary", width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot3"), width = 12, solidHeader = FALSE, status = 'primary')
               ),
               fluidRow(
                 align='center',
-                box( plotOutput("trendPlot4"), status = "primary", width = 12, solidHeader = FALSE)
+                box( plotOutput("trendPlot4"), width = 12, solidHeader = FALSE, status = 'primary')
               )
     )
   })
   output$performanceByPlayer <- renderUI({
-    fluidPage(theme = shinytheme("sandstone"),
+    fluidPage(theme = shinytheme("spacelab"),
               fluidRow(
                 align='center',
-                box(solidHeader = T, width = '100%',
-                    title = 'Compare 2 players', status = "primary",
-                    div(style="display: vertical-align:top; width: 11%; margin-top: 0em;",
+                box(solidHeader = F, status = 'primary', width = '100%',
+                    title = 'Compare 2 players',
+                    div(style="display: vertical-align:top; width: 15%; margin-top: 0em;",
                         selectInput('playerCat', 'Select a Catogory', choices = player_type_choices, selected = 'Defence', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
@@ -231,115 +231,92 @@ server <-function(input, output, session) {
               ),
               fluidRow(
                 align='center',
-                box( plotOutput("playerTrendPlot1"), status = "primary",  width = 6, solidHeader = FALSE),
-                box( plotOutput("playerTrendPlot2"), status = "primary",  width = 6, solidHeader = FALSE)
+                box( plotOutput("playerTrendPlot1"),  width = 6, solidHeader = FALSE, status = 'primary'),
+                box( plotOutput("playerTrendPlot2"),  width = 6, solidHeader = FALSE, status = 'primary')
               )
     )
   })
   output$statisticBySeason <- renderUI({
-      tabsetPanel(type = 'tabs',
-          tabPanel("Summary",
-            fluidPage(theme = shinytheme("sandstone"),
-                      fluidRow(
-                        align='center',
-                        #collapsible box for main inputs
-                        box(solidHeader = T, width = '100%',
-                            title = 'Summary of Matches', status = "primary",
-                            div(style="display: inline-block;vertical-align:top; width: 11%; margin-top: 0em;",
-                                selectInput('yearStat', 'By Season', choices = c(allYears, 'All'), selected = '2018', multiple = FALSE,
-                                            selectize = TRUE, width = NULL, size = NULL))
-                        )
-                      ),
-                      fluidRow(
-                        align='center',
-                        box(solidHeader = F, width = '100%',
-                            title = 'Arena', status = "primary"
-                        )
-                      ),
-                      fluidRow(
-                        align = "center",
-                        DT::dataTableOutput("table_statistic_arena")
-                      ),
-                      fluidRow(
-                        align='center',
-                        box(solidHeader = F, width = '100%',
-                            title = 'Team', status = "primary"
-                        )
-                      ),
-                      fluidRow(
-                        align = "center",
-                        DT::dataTableOutput("table_statistic_team")
-                      ),
-                      fluidRow(
-                        align='center',
-                        box(solidHeader = F, width = '100%',
-                            title = 'Player', status = "primary"
-                        )
-                      ),
-                      fluidRow(
-                        align = "center",
-                        DT::dataTableOutput("table_statistic_player")
-                      )
-                    )
-                  ),
-            tabPanel("Visualization",
-                     fluidPage(theme = shinytheme("sandstone"),
-                               fluidRow(
-                                 align='center',
-                                 box(solidHeader = F, width = '100%',
-                                     title = 'Arena (by Cities) Home Vs Away Impact by Season', status = "primary"
-                                 )
-                               ),
-                               fluidRow(
-                                 align='center',
-                                 box(plotOutput("arenaMapGoals"), status = "primary", width = 6, solidHeader = TRUE, title = 'Goals'),
-                                 box(plotOutput("arenaMapWins"), status = "primary", width = 6, solidHeader = TRUE, title = 'Wins')
-                               ),
-                               fluidRow(
-                                 align='center',
-                                 box(solidHeader = F, width = '100%',
-                                     title = 'Team Home Vs Away Performance by Season', status = "primary"
-                                 )
-                               ),
-                               fluidRow(
-                                 align='center',
-                                 box(plotOutput("teamGoals"), status = "primary", width = 6, solidHeader = TRUE, title = 'Goals'),
-                                 box(plotOutput("teamWins"), status = "primary", width = 6, solidHeader = TRUE, title = 'Wins')
-                               )
-                     )
-            )
-      )
+    tabsetPanel(type = 'tabs',
+                tabPanel("Summary", 
+                         fluidPage(theme = shinytheme("spacelab"),
+                                   fluidRow(
+                                     align='center',
+                                     box(solidHeader = F, width = '100%',
+                                         title = 'Arena', status = "primary",
+                                         div(style="display: inline-block;vertical-align:top; width: 15%; margin-top: 0em;",
+                                             selectInput('yearStat', 'By Season', choices = c(allYears, 'All'), selected = '2018', multiple = FALSE,
+                                                         selectize = TRUE, width = NULL, size = NULL)),
+                                         DT::dataTableOutput("table_statistic_arena")
+                                     )
+                                   ),
+                                   fluidRow(
+                                     align='center',
+                                     box(solidHeader = F, width = '100%',
+                                         title = 'Team', status = "primary",
+                                         DT::dataTableOutput("table_statistic_team")
+                                     )
+                                   )
+                         )
+                ),
+                tabPanel("Visualization",
+                         fluidPage(theme = shinytheme("slate"),
+                                   fluidRow(
+                                     align='center',
+                                     box(solidHeader = F, width = '100%',
+                                         title = 'Arena (by Cities) Home Vs Away Impact by Season', status = "primary"
+                                     )
+                                   ),
+                                   fluidRow(
+                                     align='center',
+                                     box(plotOutput("arenaMapGoals"), status = "primary", width = 6, solidHeader = F, title = 'Goals'),
+                                     box(plotOutput("arenaMapWins"), status = "primary", width = 6, solidHeader = F, title = 'Wins')
+                                   ),
+                                   fluidRow(
+                                     align='center',
+                                     box(solidHeader = F, width = '100%',
+                                         title = 'Team Home Vs Away Performance by Season', status = "primary"
+                                     )
+                                   ),
+                                   fluidRow(
+                                     align='center',
+                                     box(plotOutput("teamGoals"), status = "primary", width = 6, solidHeader = F, title = 'Goals'),
+                                     box(plotOutput("teamWins"), status = "primary", width = 6, solidHeader = F, title = 'Wins')
+                                   )
+                         )
+                )
+    )
   })
   output$shotByTeam <- renderUI({
     fluidPage(theme = shinytheme("spacelab"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
-                box(solidHeader = T, collapsible = T, width = '100%',
+                box(solidHeader = F, status = 'primary', collapsible = T, width = '100%',
                     title = "Filters", 
                     #input selections are inside div so we can place left and right inputs side by side
-                    div(style="display: inline-block;vertical-align:top; width: 27% ; margin-bottom: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 30% ; margin-bottom: 0em;",
                         selectInput('leftTeam', 'Team 1', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 15% ; margin-bottom: 0em;",
                         radioButtons('leftHome', '', choices = c('Home','Away'), selected = 'Home',
                                      inline = FALSE, width = NULL, choiceNames = NULL,
                                      choiceValues = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 27%; margin-bottom: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-bottom: 0em;",
                         selectInput('rightTeam', 'Team 2', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 15% ; margin-bottom: 0em;",
                         radioButtons('rightHome', '', choices = c('Home','Away'), selected = 'Home',
                                      inline = FALSE, width = NULL, choiceNames = NULL,
                                      choiceValues = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 27%; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 20%; margin-top: 0em;",
                         selectInput('year', 'Season', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
               fluidRow(
                 align = "center", 
-                box(title = "Rink Plot", width = '100%', textOutput("teamText"), solidHeader = T,
+                box(solidHeader = F, status = 'primary', title = "Rink Plot", width = '100%', textOutput("teamText"), 
                     plotlyOutput("icemap_team"))
               )
     )
@@ -349,13 +326,13 @@ server <-function(input, output, session) {
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
-                box(solidHeader = T, collapsible = T, width = '100%',
+                box(solidHeader = F, status = 'primary',  collapsible = T, width = '100%',
                     title = "Filters",
                     #input selections are inside div so we can place left and right inputs side by side
-                    div(style="display: inline-block;vertical-align:top; width: 25% ; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 22% ; margin-top: 0em;",
                         selectInput('arena', 'Arena', choices = arena_choices, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 25% ; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 22% ; margin-top: 0em;",
                         selectInput('yearArenaShots', 'Season', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)
                     )
@@ -363,7 +340,7 @@ server <-function(input, output, session) {
               ),
               fluidRow(
                 align = "center",
-                box(solidHeader = T, title = "Rink", width = '100%', textOutput("arenaText"),
+                box(title = 'Rink Plot', solidHeader = F, status = 'primary', width = '100%', textOutput("arenaText"),
                     plotlyOutput("icemap_Arena"))
               )
     )
@@ -373,22 +350,22 @@ server <-function(input, output, session) {
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
-                box(solidHeader = T, collapsible = T, width = '100%',
+                box(solidHeader = F, collapsible = T, width = '100%', status = 'primary',
                     title = "Filters",
-                    div(style="display: inline-block;vertical-align:top; width: 25% ; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 30% ; margin-top: 0em;",
                         selectInput('leftPlayer', 'Player 1', choices = player_choices(), selected = "Nikita Kucherov", multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 25%; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
                         selectInput('rightPlayer', 'Player 2', choices = player_choices(), selected = "Alex Ovechkin",  multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="width: 25%; margin-top: 0em;",
+                    div(style="width: 20%; margin-top: 0em;",
                         selectInput('yearPlayerShots', 'Season', choices = allYears, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
               fluidRow(
-                align = "center", 
-                box(solidHeader = T, title = "Rink", width = '100%', textOutput("playerText"),
+                align = "center",
+                box(solidHeader = F, status = 'primary', title = "Rink Plot", width = '100%', textOutput("playerText"),
                     plotlyOutput("icemap_player"))
               )
     )
