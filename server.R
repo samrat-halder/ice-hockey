@@ -47,6 +47,20 @@ server <-function(input, output, session) {
   team_stat_type <- reactive({
     return(input$statType)
   })
+  left_home <- reactive({
+    if (input$leftHome == "Home") {
+      return("at home")
+    }else{
+      return("away")
+    }
+  })
+  right_home <- reactive({
+    if (input$rightHome == "Home") {
+      return("at home")
+    }else{
+      return("away")
+    }
+  })
   left_team_id <- reactive({
     return(vF_teams_DT[long.name == input$leftTeam]$team.id)
   })  
@@ -730,12 +744,12 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shot map of",input$leftTeam)
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shot map of",input$leftTeam,"playing ",left_home())
         ) %>%
         add_markers(
           data = df_right_shots,
           hoverinfo='skip',
-          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = paste("Shot map of",input$rightTeam)
+          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = paste("Shot map of",input$rightTeam,"playing ",right_home())
         ) %>%
         add_markers(
           data = df_left_goals,
@@ -788,7 +802,7 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shotmap of",arena_team())
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shotmap of",arena_team(),"playing at home")
         ) %>%
         add_markers(
           data = df_right_shots,
@@ -812,7 +826,7 @@ server <-function(input, output, session) {
           yaxis = list(range = c(-50,50), title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
           legend = list(
             orientation = "h", 
-            y = 0,
+            y = -0.1,
             xanchor = "center",
             x = 0.5),
           images= list(
@@ -890,18 +904,8 @@ server <-function(input, output, session) {
       )
   })
   output$teamText <- renderText({
-    if (input$leftHome == "Home") {
-      left_home <- "at home"
-    }else{
-      left_home <- "away"
-    }
-    if (input$rightHome == "Home") {
-      right_home <- "at home"
-    }else{
-      right_home <- "away"
-    }
     paste0("This is the shot map of ", input$leftTeam,
-           " playing ", left_home, " on the left and ",input$rightTeam, " playing ",right_home," on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
+           " playing ", left_home(), " on the left and ",input$rightTeam, " playing ",right_home()," on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
   })
   output$arenaText <- renderText({
     paste0("This is the shot map of ", arena_team(),
