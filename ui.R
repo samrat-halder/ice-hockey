@@ -21,6 +21,7 @@ sidebar <- dashboardSidebar(
       menuItem('Team Performance', tabName = 'team')
     )
 )
+
 body <- dashboardBody(
     tags$head( 
       tags$style(HTML(".main-sidebar { font-size: 15px; }")) #change the font size to 20

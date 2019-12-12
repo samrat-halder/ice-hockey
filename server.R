@@ -315,95 +315,80 @@ server <-function(input, output, session) {
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
-                box(solidHeader = F, collapsible = T, width = '100%',
+                box(solidHeader = T, collapsible = T, width = '100%',
                     title = "Filters", 
                     #input selections are inside div so we can place left and right inputs side by side
-                    div(style="display: inline-block;vertical-align:top; width: 30% ; margin-bottom: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 27% ; margin-bottom: 0em;",
                         selectInput('leftTeam', 'Team 1', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 15% ; margin-bottom: 0em;",
                         radioButtons('leftHome', '', choices = c('Home','Away'), selected = 'Home',
                                      inline = FALSE, width = NULL, choiceNames = NULL,
                                      choiceValues = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-bottom: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 27%; margin-bottom: 0em;",
                         selectInput('rightTeam', 'Team 2', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 15% ; margin-bottom: 0em;",
                         radioButtons('rightHome', '', choices = c('Home','Away'), selected = 'Home',
                                      inline = FALSE, width = NULL, choiceNames = NULL,
                                      choiceValues = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
+                    div(style="display: inline-block;vertical-align:top; width: 27%; margin-top: 0em;",
+                        selectInput('year', 'Season', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
-              #fluidRow(
-              #  box(
-              #    width = '100%',
-              #    textOutput("teamText")
-              #  )
-              #),
               fluidRow(
                 align = "center", 
-                box(title = "Rink Plot", width = '100%', textOutput("teamText"),
+                box(title = "Rink Plot", width = '100%', textOutput("teamText"), solidHeader = T,
                     plotlyOutput("icemap_team"))
               )
     )
   })
   output$shotByArena <- renderUI({
-    fluidPage(theme = shinytheme("sandstone"),
+    fluidPage(theme = shinytheme("spacelab"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, collapsible = T, width = '100%',
-                    title = "Filters", status = "primary",
+                    title = "Filters",
                     #input selections are inside div so we can place left and right inputs side by side
-                    div(style="display: inline-block;vertical-align:top; width: 35% ; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 25% ; margin-top: 0em;",
                         selectInput('arena', 'Arena', choices = arena_choices, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 35% ; margin-top: 0em;",
-                        selectInput('yearArenaShots', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
+                    div(style="display: inline-block;vertical-align:top; width: 25% ; margin-top: 0em;",
+                        selectInput('yearArenaShots', 'Season', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)
                     )
                 )
               ),
               fluidRow(
-                tags$style(make_css(list('.box', 
-                                         c('font-size', 'font-family', 'color'), 
-                                         c('15px', 'arial', 'black')))),
-                box(
-                  width = '100%',
-                  textOutput("arenaText")
-                )
-              ),
-              fluidRow(
-                align = "center", 
-                box(status = "primary", title = "Rink", width = '100%',
+                align = "center",
+                box(solidHeader = T, title = "Rink", width = '100%', textOutput("arenaText"),
                     plotlyOutput("icemap_Arena"))
               )
     )
   })
   output$shotByPlayer <- renderUI({
-    fluidPage(theme = shinytheme("sandstone"),
+    fluidPage(theme = shinytheme("spacelab"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
                 box(solidHeader = T, collapsible = T, width = '100%',
-                    title = "Filters", status = "primary",
-                    div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: 0em;",
+                    title = "Filters",
+                    div(style="display: inline-block;vertical-align:top; width: 25% ; margin-top: 0em;",
                         selectInput('leftPlayer', 'Player 1', choices = player_choices(), selected = "Nikita Kucherov", multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
+                    div(style="display: inline-block;vertical-align:top; width: 25%; margin-top: 0em;",
                         selectInput('rightPlayer', 'Player 2', choices = player_choices(), selected = "Alex Ovechkin",  multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
-                    div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
-                        selectInput('yearPlayerShots', 'Year', choices = allYears, multiple = FALSE,
+                    div(style="width: 25%; margin-top: 0em;",
+                        selectInput('yearPlayerShots', 'Season', choices = allYears, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
               fluidRow(
                 align = "center", 
-                box(status = "primary", title = "Rink", width = '100%',
+                box(solidHeader = T, title = "Rink", width = '100%', textOutput("playerText"),
                     plotlyOutput("icemap_player"))
               )
     )
@@ -937,5 +922,9 @@ server <-function(input, output, session) {
   output$arenaText <- renderText({
     paste0("This is the shot map of ", arena_team(),
            " playing at home on the left and teams visiting ", input$arena, " on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
+  })
+  output$playerText <- renderText({
+    paste0("This is the shot map of ", input$leftPlayer,
+           " on the left and ", input$rightPlayer, " on the right.\n The density of the shot map shows the frequency of shots taken in each area of the rink. Individual dot points show where goals have been scored from.")
   })
 }
