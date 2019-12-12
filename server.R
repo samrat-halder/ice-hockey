@@ -21,18 +21,18 @@ server <-function(input, output, session) {
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
   })
-  observeEvent(input$yearShotPlayer,{
-    updateSelectInput(session,inputId = 'year', selected = input$yearShotPlayer)
-  }) 
-  observeEvent(input$yearShotArena,{
-    updateSelectInput(session,inputId = 'year', selected = input$yearShotArena)
-  }) 
-  observeEvent(input$leftTeamArena,{
-    updateSelectInput(session,inputId='leftTeam', selected = input$leftTeamArena)
-  }) 
-  observeEvent(input$rightTeamArena,{
-    updateSelectInput(session,inputId = 'rightTeam', selected = input$rightArena)
-  }) 
+  #observeEvent(input$yearShotPlayer,{
+  #  updateSelectInput(session,inputId = 'year', selected = input$yearShotPlayer)
+  #}) 
+  #observeEvent(input$yearShotArena,{
+  #  updateSelectInput(session,inputId = 'year', selected = input$yearShotArena)
+  #}) 
+  #observeEvent(input$leftTeamArena,{
+  #  updateSelectInput(session,inputId='leftTeam', selected = input$leftTeamArena)
+  #}) 
+  #observeEvent(input$rightTeamArena,{
+  #  updateSelectInput(session,inputId = 'rightTeam', selected = input$rightArena)
+  #}) 
   observe({
     updateSelectInput(session, inputId = "playerPerf1", choices = player_choices_perf())
   })
@@ -259,7 +259,7 @@ server <-function(input, output, session) {
     )
   })
   output$statisticBySeason <- renderUI({
-    tabsetPanel(type = 'tabs',
+    navbarPage("", id = 'someID',
                 tabPanel("Summary", 
                          fluidPage(theme = shinytheme("spacelab"),
                                    fluidRow(
@@ -289,7 +289,7 @@ server <-function(input, output, session) {
                          )
                 ),
                 tabPanel("Visualization",
-                         fluidPage(theme = shinytheme("slate"),
+                         fluidPage(theme = shinytheme("spacelab"),
                                    fluidRow(
                                      align='center',
                                      box(solidHeader = F, width = '100%',
@@ -314,6 +314,7 @@ server <-function(input, output, session) {
                                    )
                          )
                 )
+                
     )
   })
   output$shotByTeam <- renderUI({
@@ -344,8 +345,8 @@ server <-function(input, output, session) {
                 )
               ),
               fluidRow(
-                align = "center", 
-                box(solidHeader = F, status = 'primary', title = "Rink Plot", width = '100%', textOutput("teamText"), 
+                align = "center",
+                box(solidHeader = F, status = 'primary', title = "Rink Plot", width = '100%', textOutput("teamText"),
                     plotlyOutput("icemap_team"))
               )
     )
@@ -776,7 +777,7 @@ server <-function(input, output, session) {
           yaxis = list(range = c(-50,50), title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
           legend = list(
             orientation = "h", 
-                        y = 0,
+                        y = -0.1,
                         xanchor = "center",
                         x = 0.5),
           images= list(
@@ -892,7 +893,7 @@ server <-function(input, output, session) {
         yaxis = list(range = c(-50,50),title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
         legend = list(
           orientation = "h", 
-          y = 0,
+          y = -0.1,
           xanchor = "center",
           x = 0.5),
         images= list(
