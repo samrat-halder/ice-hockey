@@ -37,3 +37,12 @@ vF_player_season_data <- vF_player_season_data[season >= 2014, !(names(vF_player
 
 rm(drop_cols)
 save.image('./data/2019-12-11_app-data.RData')
+
+### Aligning name of Montreal's and Tampa's arena across data frames
+load('./data/2019-12-11_app-data.RData')
+
+# vF_teams_DT # For the names to change them to 
+vF_game_info[home.teamID == 8, name := 'Bell Centre'] #Centre Bell before
+vF_game_info[home.teamID == 14, name := 'AMALIE Arena'] #Amalie Arena before
+
+save.image('./data/2019-12-11_app-data.RData')

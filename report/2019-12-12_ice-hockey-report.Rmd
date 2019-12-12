@@ -52,7 +52,7 @@ For our project, we explored these questions for ice hockey games in the Nationa
 
 This project consists of the following report, which focuses on high level views of the data and our overall findings. We have also developed an interactive shiny app to allow the reader to explore more granuolar views of the data to supplement this analysis.
 
-All code used for the project is availabe on the github page: [TBU].
+All code used for the project is availabe on the github page: https://github.com/samrat-halder/Ice-Hockey.
 
 ### What you need to know about hockey to understand this
 
@@ -103,7 +103,7 @@ To interact with the API, we used the httr package to make requests and the json
 
 The final step was to standardize the coordinates of plays. During hockey games, the teams switch sides after every period. Therefore, if you want to look at all of a teams shots during one game, you need to standardize the orientation of their shots. We created multiple sets of coordinates (for example we made one with all shots on the left side of the rink), so that we could pick the right set for each visualization.
 
-To recreate this dataset, visit our github for the project and use script "2019-12-06_nhl-api-script.R". The data itself is also directly available in the RData file "2019-12-07_nhl-cleaned-data.RData". (Both of these files are in [UPDATE LINK])
+To recreate this dataset, visit our github for the project and use script "2019-12-06_nhl-api-script.R". The data itself is also directly available in the RData file "2019-12-07_nhl-cleaned-data.RData". (Both of these files are in the data folder: https://github.com/samrat-halder/Ice-Hockey/tree/master/data)
 
 ## Missing values
 
@@ -266,20 +266,19 @@ ggplot(away_perf_by_city) +
   coord_flip()
 ```
 
-Paragraph on arena visualizations (to be cleaned up and actual plots to be attached when finalized)
-
-These are all pretty similar. The home team has a denser region of shots and goals right in front of goal.
-
-Anaheim - Very dense crescent shape in front of goal for Ducks. The Ducks are known for being a large, physical team and this manifests in their shot chart. They work to get the puck close to the net. Meanwhile, on the defensive end, the crescent around the net is much wider (i.e. many shots from slightly farther out) and not as dense.
-Washington - Denser in front of goal for Capitals. Can clearly see where Alex Ovechkin (one of the best players in the NHL) is shooting from. He is known for setting up on the left dot and firing slapshots. For visiting teams, there is a lot more shading near the blue line, indicating more shots are coming from the defense. This shows how the Capitals are forcing teams to shoot from farther away.
-Montreal -
-Nashville - Area of danger slightly smaller but denser with goals for Predators. Overall not too big of a difference however.
-Winnipeg - Slightly denser for Jets but not by much. Can see a noticeable difference vs the away team, but nowhere near as extreme as Anaheim.
-Pittsburgh - Penguins map is very dense in front of goal compared to visitors. Very extreme difference vs away; a little suprising that Pittsburgh isn't popping as difficult to play at.
-
-The density of the home danger area is less pronounced for Edmonton but not for Ottawa (Ottawa supposedly the easiest to play away). Ottawa has a denser area in front of goal than their visitors. While Edmonton's shot map looks denser around the net than visitors, the number of goals in this area is very similar. 
-
 ### Arena case studies 
+
+In addition to this high level view, we can look at arena shot maps to better understand the difference between locations. In these plots, shots are displayed as a heatmap based on density at locations on the ice. On top of this, individual goals are overlaid as points. In general in hockey, shots closer to the net are better. Seeing a very dense area around the net for a team is good. Another pattern to note is that defensment typically shoot from the blue line. A lot of shots in this area indicates either the team has very active defensemen or that they struggle to get good chances from closer to the net.
+
+Taking a team from the bottom and top, we compare the shotmaps at Edmonton and Washington. In Edmonton's shot map (which shows the Edmonton Oilers on the left and all visiting teams on the right), we do not see a great deal of difference between the home team and visiting teams. While Edmonton's shot map looks slightly denser around the net than visitors, the number of goals in this area is very similar. Meanwhile, there is a clear difference when looking at Washington's shot map. It is mcuh denser in front of the goal for Capitals. For visiting teams, there is a lot more shading near the blue line, indicating more shots are coming from the defensive players. This shows how the Capitals are forcing teams to shoot from farther away. 
+
+One last aside on the Washington shot map: we can clearly see where Alex Ovechkin (one of the best players in the NHL) is shooting from for Washington by looking at the bottom dot on the left side of the plot. Ovechkin is known for setting up at this location and firing slapshots; indeed the shot density is darker and there are more goals here. 
+
+
+![Edmonton arena shotmap (2018)](shot_maps/shots_arena_edmonton.png)
+
+![Washington arena shotmap (2018)](shot_maps/shots_arena_washington.png)
+
 
 ### What teams are the strongest when on the road?
 
@@ -309,30 +308,17 @@ ggplot(team_away_perf[result.eventTypeId == play_sel]) +
 
 ```
 
-Paragraph on team home v away visualizations (to be cleaned up and actual plots to be attached when finalized)
-
-Teams that perform relatively well away
-- Carolina Hurricanes: When playing away their shotmap is a bit more compact but shots close to goal less dense. Overall not too much of a difference as expected
-- New Jersey Devils: Home map is more compact with a lot of shots coming from the left side. Even though their shots/goals are not as dense around the net when away, the Devils get additional scoring when away from the arc around this. 
-- San Jose Sharks: Home map has a good amount of goals coming from the left. Can clearly see where their star defensman, Brent Burns, is shooting from. He shoots a LOT from the right point.
-
-Teams that perform relatively worse away
-- Pittsburgh Penguins: Very dense around the goal when playing at home, much more spread out when playing away. Difference here is pretty crazy!
-- Calgary Flames: Again pretty dense around goal when playing at home but patterns arent as clear. Goals are also more spread out when away
-- Winnipeg Jets: Pattern isnt too clear. Seems very dense right in front of the net at home; much less so away. 
-
-Teams that have interesting patterns
-- Philadelphia Flyers: Home plot shows shots clustered just past the blue line(dont know what its called) and halfway between that blue line and goal. Suggests they have a structured way of playing at home but not away
-- Tampa Bay Lightning: Home plot is very dense and compact. Still strong when playing away but not to the same extent
-- Boston Bruins: Home plot shows very dense number of shots from far out to either side, not so when playing away
-
-
 ### Team case studies: 
 
+We can examine shotmaps for these teams to provide additional nuance to our understanding of these teams' performance; let's take the Carolina Hurricanes and Pittsburgh Penguins as a comparison. This time we use shot map for teams when they play at home (left) and away (right). Overall, there is not too much of a difference in the Hurricanes shot map, as expected. When playing away their shots are a bit more compact and slightly less dense, but they still generate a significant number of goals from in close. Meanwhile, the Penguins shot map looks completely different from left to right. At home, their shots are very dense around the net with a ton of goals. But when playing away, their shots and goals are pushed much farther away from the net. 
+
+![Carolina Hurricanes shotmap (2018)](shot_maps/shots_team_carolina.png)
+
+![Pittsburgh Penguins shotmap (2018)](shot_maps/shots_team_pittsburgh.png)
 
 ## Interactive component
 
-Please go to [INSERT LINK HERE] to see our shiny app. Detailed information, like the charts in the case studies, is available here.
+Please go to https://edav-fall2019-jhs.shinyapps.io/ice-hockey/ to see our shiny app. Detailed information, like the charts in the case studies, is available here. You are free to select different teams, arenas, or even individual players to explore different shotmaps. Additional aggregate information and charts is also available.
 
 ## Conclusion
 
