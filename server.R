@@ -256,7 +256,14 @@ server <-function(input, output, session) {
                                          title = 'Team', status = "primary",
                                          DT::dataTableOutput("table_statistic_team")
                                      )
-                                   )
+                                   ),
+                                   fluidRow(
+                                     align='center',
+                                     box(solidHeader = F, width = '100%',
+                                         title = 'Player', status = "primary",
+                                         DT::dataTableOutput("table_statistic_player")
+                                     )
+                                   )   
                          )
                 ),
                 tabPanel("Visualization",
@@ -385,7 +392,7 @@ server <-function(input, output, session) {
     dfGroupByPlayer <- subset(dfGroupByPlayer, select= !(names(dfGroupByPlayer) %in% c('player.id', 'firstName', 'lastName')))
     dfGroupByPlayer <- dfGroupByPlayer[,c('Player','stat.games','stat.goals','stat.shots','stat.assists')]
     colnames(dfGroupByPlayer) <- c('Name', 'Games', 'Goals', 'Shots', 'Assists')
-    dfGroupByPlayer <- dfGroupByPlayer[order(dfGroupByPlayer$Games, decreasing = T),]
+    dfGroupByPlayer <- dfGroupByPlayer[order(dfGroupByPlayer$Goals, decreasing = T),]
     rownames(dfGroupByPlayer) <- NULL
     DT::datatable(dfGroupByPlayer, options = list(orderClasses = TRUE, pageLength = 5))
   })
