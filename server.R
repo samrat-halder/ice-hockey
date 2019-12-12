@@ -337,18 +337,15 @@ server <-function(input, output, session) {
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
-              fluidRow(
-                #tags$style(make_css(list('.box', 
-                #                         c('font-size', 'font-family', 'color'), 
-                #                         c('15px', 'arial', 'black')))),
-                box(
-                  width = '100%',
-                  textOutput("teamText")
-                )
-              ),
+              #fluidRow(
+              #  box(
+              #    width = '100%',
+              #    textOutput("teamText")
+              #  )
+              #),
               fluidRow(
                 align = "center", 
-                box(title = "Rink", width = '100%',
+                box(title = "Rink Plot", width = '100%', textOutput("teamText"),
                     plotlyOutput("icemap_team"))
               )
     )
@@ -754,12 +751,12 @@ server <-function(input, output, session) {
         add_markers(
           data = df_left_shots,
           hoverinfo='skip',
-          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shotmap of",input$leftTeam)
+          x = ~l.x, y=~l.y, marker = list(size = 20, color = 'blue', opacity = max(50/nrow(df_left_shots),0.01)), name = paste("Shot map of",input$leftTeam)
         ) %>%
         add_markers(
           data = df_right_shots,
           hoverinfo='skip',
-          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = paste("Shotmap of",input$rightTeam)
+          x = ~r.x, y=~r.y, marker = list(size = 20, color = 'red', opacity = max(50/nrow(df_right_shots),0.01)), name = paste("Shot map of",input$rightTeam)
         ) %>%
         add_markers(
           data = df_left_goals,
@@ -778,7 +775,7 @@ server <-function(input, output, session) {
           yaxis = list(range = c(-50,50), title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
           legend = list(
             orientation = "h", 
-                        y = 1.1,
+                        y = 0,
                         xanchor = "center",
                         x = 0.5),
           images= list(
