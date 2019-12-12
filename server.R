@@ -71,6 +71,12 @@ server <-function(input, output, session) {
   selected_year <- reactive({
     return(input$year)
   })
+  selected_year_arena_shots <- reactive({
+    return(input$yearArenaShots)
+  })
+  selected_year_player_shots <- reactive({
+    return(input$yearPlayerShots)
+  })
   selected_yearStat <- reactive({
     return(input$yearStat)
   })
@@ -128,7 +134,7 @@ server <-function(input, output, session) {
                          & game.id %in% games_right$game.id])
   }) 
   df_arena_home <- reactive({
-    year <- selected_year()
+    year <- selected_year_arena_shots()
     upper_lim <- as.numeric(year) +1
     upper_lim <- paste0(as.character(upper_lim),'000000')
     lower_lim <- as.numeric(year) -1
@@ -138,7 +144,7 @@ server <-function(input, output, session) {
                          & game.id %in% games_arena$game.id])
   }) 
   df_arena_away <- reactive({
-    year <- selected_year()
+    year <- selected_year_arena_shots()
     upper_lim <- as.numeric(year) +1
     upper_lim <- paste0(as.character(upper_lim),'000000')
     lower_lim <- as.numeric(year) -1
@@ -148,7 +154,7 @@ server <-function(input, output, session) {
                          & game.id %in% games_arena$game.id])
   }) 
   df_left_player <- reactive({
-    year <- selected_year()
+    year <- selected_year_player_shots()
     upper_lim <- as.numeric(year) +1
     upper_lim <- paste0(as.character(upper_lim),'000000')
     lower_lim <- as.numeric(year) -1
@@ -158,7 +164,7 @@ server <-function(input, output, session) {
                          & game_and_event_id %in% games_player$game_and_event_id])
   }) 
   df_right_player <- reactive({
-    year <- selected_year()
+    year <- selected_year_player_shots()
     upper_lim <- as.numeric(year) +1
     upper_lim <- paste0(as.character(upper_lim),'000000')
     lower_lim <- as.numeric(year) -1
@@ -359,7 +365,7 @@ server <-function(input, output, session) {
                         selectInput('arena', 'Arena', choices = arena_choices, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 35% ; margin-top: 0em;",
-                        selectInput('yearShotArena', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
+                        selectInput('yearArenaShots', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)
                     )
                 )
@@ -394,7 +400,7 @@ server <-function(input, output, session) {
                         selectInput('rightPlayer', 'Player 2', choices = player_choices(), selected = "Alex Ovechkin",  multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
-                        selectInput('yearShotPlayer', 'Year', choices = allYears, multiple = FALSE,
+                        selectInput('yearPlayerShots', 'Year', choices = allYears, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
