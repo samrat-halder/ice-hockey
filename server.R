@@ -801,11 +801,11 @@ server <-function(input, output, session) {
           x = ~r.x, y=~r.y, showlegend = FALSE, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
-          xaxis = list(range = c(-110,110), title = 'x'),
-          yaxis = list(range = c(-50,50), title = 'y'),
+          xaxis = list(range = c(-110,110), title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
+          yaxis = list(range = c(-50,50), title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
           legend = list(
             orientation = "h", 
-            y = 1.1,
+            y = 0,
             xanchor = "center",
             x = 0.5),
           images= list(
@@ -859,11 +859,11 @@ server <-function(input, output, session) {
         x = ~r.x, y=~r.y, showlegend = FALSE, marker = list(size = 4, color = 'black', opacity =1)
       ) %>%
       layout(
-        xaxis = list(range = c(-110,110),title='x'),
-        yaxis = list(range = c(-50,50),title='y'),
+        xaxis = list(range = c(-110,110),title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
+        yaxis = list(range = c(-50,50),title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
         legend = list(
           orientation = "h", 
-          y = 1.1,
+          y = 0,
           xanchor = "center",
           x = 0.5),
         images= list(
