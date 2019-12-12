@@ -305,12 +305,12 @@ server <-function(input, output, session) {
       )
   })
   output$shotByTeam <- renderUI({
-    fluidPage(theme = shinytheme("sandstone"),
+    fluidPage(theme = shinytheme("spacelab"),
               fluidRow(
                 align='center',
                 #collapsible box for main inputs
-                box(solidHeader = T, collapsible = T, width = '100%',
-                    title = "Filters", status = "primary", 
+                box(solidHeader = F, collapsible = T, width = '100%',
+                    title = "Filters", 
                     #input selections are inside div so we can place left and right inputs side by side
                     div(style="display: inline-block;vertical-align:top; width: 30% ; margin-bottom: 0em;",
                         selectInput('leftTeam', 'Team 1', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
@@ -319,8 +319,6 @@ server <-function(input, output, session) {
                         radioButtons('leftHome', '', choices = c('Home','Away'), selected = 'Home',
                                      inline = FALSE, width = NULL, choiceNames = NULL,
                                      choiceValues = NULL)),
-                        #selectInput('leftHome', 'Home or Away', choices = c('Home','Away'), selected = 'Home', multiple = FALSE,
-                        #            selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-bottom: 0em;",
                         selectInput('rightTeam', 'Team 2', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
@@ -334,9 +332,9 @@ server <-function(input, output, session) {
                 )
               ),
               fluidRow(
-                tags$style(make_css(list('.box', 
-                                         c('font-size', 'font-family', 'color'), 
-                                         c('15px', 'arial', 'black')))),
+                #tags$style(make_css(list('.box', 
+                #                         c('font-size', 'font-family', 'color'), 
+                #                         c('15px', 'arial', 'black')))),
                 box(
                   width = '100%',
                   textOutput("teamText")
@@ -344,7 +342,7 @@ server <-function(input, output, session) {
               ),
               fluidRow(
                 align = "center", 
-                box(status = "primary", title = "Rink", width = '100%',
+                box(title = "Rink", width = '100%',
                     plotlyOutput("icemap_team"))
               )
     )
@@ -770,8 +768,8 @@ server <-function(input, output, session) {
           x = ~r.x, y=~r.y, showlegend = FALSE, marker = list(size = 3, color = 'black', opacity = 200/nrow(df_right_goals))
         ) %>%
         layout(
-          xaxis = list(range = c(-110,110), title = 'x'),
-          yaxis = list(range = c(-50,50), title = 'y'),
+          xaxis = list(range = c(-110,110), title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
+          yaxis = list(range = c(-50,50), title = '', showticklabels=FALSE, zeroline = FALSE, showline = FALSE, fixedrange=TRUE),
           legend = list(
             orientation = "h", 
                         y = 1.1,

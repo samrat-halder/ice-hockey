@@ -1,5 +1,7 @@
 header <- dashboardHeader(
-  title = "NHL ICE HOCKEY"
+  title = "NHL Ice Hockey"
+  #title = span("NHL Ice Hockey", 
+   #                 style = "color: black; font-size: 20px; font-family: Open Sans")
 )
 sidebar <- dashboardSidebar(
     #Here goes more customization
@@ -32,4 +34,4 @@ body <- dashboardBody(
       tabItem('team', uiOutput('performanceByTeam'))
   )
 )
-ui <- dashboardPage(header, sidebar, body)
+ui <- dashboardPage(header, sidebar, body, skin = 'black')
