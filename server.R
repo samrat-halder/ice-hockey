@@ -1,10 +1,18 @@
 server <-function(input, output, session) {
   addClass(selector = "body", class = "sidebar-collapse")
   allYears <- c('2018','2017','2016','2015','2014')
-  team_choices <- unique(vF_teams_DT$long.name)
-  team_choices <- team_choices[order(team_choices)]
-  arena_choices <- unique(vF_teams_DT$venue.city)
-  arena_choices <- arena_choices[order(arena_choices)]
+  #team_choices <- unique(vF_teams_DT$long.name)
+  #team_choices <- team_choices[order(team_choices)]
+  #arena_choices <- unique(vF_teams_DT$venue.city)
+  #arena_choices <- arena_choices[order(arena_choices)]
+  team_choices <- reactive({
+    choices <- unique(vF_teams_DT$long.name)
+    return(choices[order(choices)])
+  })
+  arena_choices <- reactive({
+    choices <- unique(vF_teams_DT$venue.city)
+    return(choices[order(choices)])
+  })
   player_type_choices <- c('Offence', 'Defence','Goalie')
   vF_player_info$fullName <- paste(vF_player_info$firstName,vF_player_info$lastName,sep=' ')
   vF_game_plays$game_and_event_id <- paste(vF_game_plays$game.id,vF_game_plays$about.eventIdx,sep='')
@@ -195,13 +203,13 @@ server <-function(input, output, session) {
                 box(solidHeader = F, status = 'primary', width = '100%',
                     title = 'Compare 3 teams', 
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('teamPerf1', 'Select Team 1', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
+                        selectInput('teamPerf1', 'Select Team 1', choices = team_choices(), selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('teamPerf2', 'Select Team 2', choices = team_choices, selected = 'Florida Panthers', multiple = FALSE,
+                        selectInput('teamPerf2', 'Select Team 2', choices = team_choices(), selected = 'Florida Panthers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-top: 0em;",
-                        selectInput('teamPerf3', 'Select Team 3', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
+                        selectInput('teamPerf3', 'Select Team 3', choices = team_choices(), selected = 'Boston Bruins', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)), 
                     div(style="display: inline-block;vertical-align:top; width: 15%; margin-top: 0em;",
                         selectInput('statType', 'Statistics Level', choices = c('Macro','Micro'), selected = 'Macro', multiple = FALSE,
@@ -317,14 +325,14 @@ server <-function(input, output, session) {
                     title = "Filters", 
                     #input selections are inside div so we can place left and right inputs side by side
                     div(style="display: inline-block;vertical-align:top; width: 30% ; margin-bottom: 0em;",
-                        selectInput('leftTeam', 'Team 1', choices = team_choices, selected = 'Boston Bruins', multiple = FALSE,
+                        selectInput('leftTeam', 'Team 1', choices = team_choices(), selected = 'Boston Bruins', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 15% ; margin-bottom: 0em;",
                         radioButtons('leftHome', '', choices = c('Home','Away'), selected = 'Home',
                                      inline = FALSE, width = NULL, choiceNames = NULL,
                                      choiceValues = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 30%; margin-bottom: 0em;",
-                        selectInput('rightTeam', 'Team 2', choices = team_choices, selected = 'New York Rangers', multiple = FALSE,
+                        selectInput('rightTeam', 'Team 2', choices = team_choices(), selected = 'New York Rangers', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 15% ; margin-bottom: 0em;",
                         radioButtons('rightHome', '', choices = c('Home','Away'), selected = 'Home',
@@ -351,7 +359,7 @@ server <-function(input, output, session) {
                     title = "Filters",
                     #input selections are inside div so we can place left and right inputs side by side
                     div(style="display: inline-block;vertical-align:top; width: 22% ; margin-top: 0em;",
-                        selectInput('arena', 'Arena', choices = arena_choices, multiple = FALSE,
+                        selectInput('arena', 'Arena', choices = arena_choices(), multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 22% ; margin-top: 0em;",
                         selectInput('yearArenaShots', 'Season', choices = allYears, selected = '2018', multiple = FALSE,
