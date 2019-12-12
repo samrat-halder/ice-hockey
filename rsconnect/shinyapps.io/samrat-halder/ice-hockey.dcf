@@ -1,0 +1,13 @@
+name: ice-hockey
+title:
+username:
+account: samrat-halder
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1588289
+bundleId: 2660457
+url: https://samrat-halder.shinyapps.io/ice-hockey/
+when: 1576108737.4199
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|hockey-rink.R|packages.R|README.md|report

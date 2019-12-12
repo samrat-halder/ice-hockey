@@ -13,6 +13,12 @@ server <-function(input, output, session) {
   observeEvent(input$tabs,{
     updateSelectInput(session,'tabs')
   })
+  observeEvent(input$yearShotPlayer,{
+    updateSelectInput(session,inputId = 'year', selected = input$yearShotPlayer)
+  }) 
+  observeEvent(input$yearShotArena,{
+    updateSelectInput(session,inputId = 'year', selected = input$yearShotArena)
+  }) 
   observeEvent(input$leftTeamArena,{
     updateSelectInput(session,inputId='leftTeam', selected = input$leftTeamArena)
   }) 
@@ -355,7 +361,7 @@ server <-function(input, output, session) {
                         selectInput('arena', 'Arena', choices = arena_choices, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 35% ; margin-top: 0em;",
-                        selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
+                        selectInput('yearShotArena', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)
                     )
                 )
@@ -383,19 +389,6 @@ server <-function(input, output, session) {
                 #collapsible box for main inputs
                 box(solidHeader = T, collapsible = T, width = '100%',
                     title = "Filters", status = "primary",
-                    #input selections are inside div so we can place left and right inputs side by side
-                    # div(style="display: inline-block;vertical-align:top; width: 22% ; margin-top: 0em;",
-                    #     selectInput('leftPlayer', 'Left Player', choices = player_choices(), multiple = FALSE,
-                    #                 selectize = TRUE, width = NULL, size = NULL)),
-                    # div(style="display: inline-block;vertical-align:top; width: 22%; margin-top: 0em;",
-                    #     selectInput('rightPlayer', 'Right Player', choices = player_choices(), multiple = FALSE,
-                    #                 selectize = TRUE, width = NULL, size = NULL)),
-                    # div(style="display: inline-block;vertical-align:top; width: 22% ; margin-top: 0em;",
-                    #     selectInput('leftPlayer', 'Left Player', choices = player_choices(), multiple = FALSE,
-                    #                 selectize = TRUE, width = NULL, size = NULL)),
-                    # div(style="display: inline-block;vertical-align:top; width: 22%; margin-top: 0em;",
-                    #     selectInput('rightPlayer', 'Right Player', choices = player_choices(), multiple = FALSE,
-                    #                 selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 45% ; margin-top: 0em;",
                         selectInput('leftPlayer', 'Player 1', choices = player_choices(), selected = "Nikita Kucherov", multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
@@ -403,7 +396,7 @@ server <-function(input, output, session) {
                         selectInput('rightPlayer', 'Player 2', choices = player_choices(), selected = "Alex Ovechkin",  multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL)),
                     div(style="display: inline-block;vertical-align:top; width: 45%; margin-top: 0em;",
-                        selectInput('year', 'Year', choices = allYears, selected = '2018', multiple = FALSE,
+                        selectInput('yearShotPlayer', 'Year', choices = allYears, multiple = FALSE,
                                     selectize = TRUE, width = NULL, size = NULL))
                 )
               ),
